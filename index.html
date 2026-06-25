@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech.Med.chebur.shop-Reminder — Tech.chebur.shop</title>
+    <style>
+        :root { 
+            --bg: #0a0a0c; 
+            --card: #121216; 
+            --text: #ffffff; 
+            --accent: #ff5500; 
+            --med-color: #00ffff; 
+            --music: #00ff66;  
+            --neon-glow: 0 0 15px var(--accent), 0 0 30px var(--accent);
+            --neon-med: 0 0 15px var(--med-color), 0 0 25px var(--med-color);
+            --neon-footer: 0 0 6px var(--accent);
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden; 
+        }
+
+        .container { 
+            position: relative;
+            text-align: center; 
+            background: var(--card); 
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 25px rgba(255, 85, 0, 0.2), inset 0 0 15px rgba(255, 85, 0, 0.1); 
+            width: 380px; 
+        }
+
+        .lang-switcher {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            display: flex;
+            gap: 8px;
+        }
+        .lang-btn {
+            background: #1a1a24;
+            border: 1px solid #444;
+            color: #8a8a93;
+            padding: 3px 8px;
+            font-size: 11px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .lang-btn.active {
+            border-color: var(--med-color);
+            color: #fff;
+            box-shadow: 0 0 5px var(--med-color);
+        }
+
+        .streak-counter {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--music);
+            text-shadow: 0 0 5px var(--music);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .logo-area {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .wolf-logo-placeholder {
+            font-size: 18px; 
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: var(--neon-glow);
+            border: 1px dashed rgba(255, 85, 0, 0.4);
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+
+        h1 { font-size: 22px; color: #fff; text-shadow: var(--neon-glow); margin: 15px 0 5px 0; text-transform: uppercase; }
+        .timer { font-size: 48px; font-weight: bold; margin: 10px 0; font-variant-numeric: tabular-nums; text-shadow: 0 0 10px #fff; color: var(--med-color); }
+        .status { font-size: 13px; color: #8a8a93; letter-spacing: 1px; text-transform: uppercase; }
+        
+        .med-schedule {
+            margin: 15px 0;
+            padding: 0;
+            list-style: none;
+            text-align: left;
+            font-size: 13px;
+            color: #bbb;
+        }
+        .med-schedule li {
+            padding: 5px 0;
+            border-bottom: 1px solid #1a1a24;
+            display: flex;
+            justify-content: space-between;
+        }
+        .med-schedule li.next-med {
+            color: var(--med-color);
+            font-weight: bold;
+        }
+
+        .sound-selector {
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .sound-selector label { font-size: 11px; color: #8a8a93; text-transform: uppercase; }
+        .sound-selector select {
+            background: #1a1a24; color: #fff; border: 1px solid var(--accent);
+            padding: 6px 12px; border-radius: 10px; font-size: 13px; cursor: pointer; outline: none;
+        }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(6, 6, 8, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+        .overlay.active { opacity: 1; pointer-events: auto; }
+        .content { text-align: center; max-width: 500px; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .med-alert-title { font-size: 32px; color: #fff; text-shadow: var(--neon-med); margin-bottom: 10px; text-transform: uppercase; }
+        .med-instruction { font-size: 20px; color: #ffaa66; margin-bottom: 25px; font-weight: bold; }
+        
+        .btn { background: transparent; color: #fff; border: 2px solid var(--med-color); padding: 15px 35px; font-size: 16px; border-radius: 25px; cursor: pointer; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; transition: all 0.2s; box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.2); }
+        .btn:hover { background: var(--med-color); box-shadow: var(--neon-med); color: #000; transform: scale(1.05); }
+
+        .footer-credits { margin-top: 25px; font-size: 11px; color: #bbb; letter-spacing: 1px; text-transform: uppercase; }
+        .footer-credits a { color: var(--accent); text-decoration: none; font-weight: bold; text-shadow: var(--neon-footer); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="lang-switcher">
+            <button class="lang-btn active" id="lang-ru">RU</button>
+            <button class="lang-btn" id="lang-de">DE</button>
+        </div>
+
+        <div class="streak-counter" id="streak-display">Bio-Score: 0</div>
+
+        <div class="logo-area">
+            <div class="wolf-logo-placeholder">TECH.MED.CHEBUR.SHOP</div>
+        </div>
+
+        <h1 id="main-title">Мониторинг здоровья</h1>
+        <div class="status" id="status-text">Следующий приём через:</div>
+        <div class="timer" id="countdown-timer">00:00:00</div>
+        
+        <ul class="med-schedule" id="schedule-list">
+            </ul>
+
+        <div class="sound-selector">
+            <label for="alarm-sound-select" id="sound-label">🔔 Сигнал оповещения:</label>
+            <select id="alarm-sound-select">
+                <option value="gong.mp3" id="opt-gong" selected>Космический гонг</option>
+                <option value="digital.mp3" id="opt-dig">Цифровой сигнал</option>
+                <option value="bowl.mp3" id="opt-bowl">Тибетская чаша</option>
+            </select>
+        </div>
+
+        <div class="footer-credits">
+            © Tm.<a href="https://tech.chebur.shop" target="_blank">tech.chebur.shop</a>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="content">
+            <div class="med-alert-title" id="alert-title">Время приёма! 💊</div>
+            <div class="med-instruction" id="alert-instruction">Пора принять запланированные препараты</div>
+            <button class="btn" id="confirm-btn">Принял 👍</button>
+        </div>
+    </div>
+
+    <audio id="alarm-sound" preload="auto" loop></audio>
+
+    <script>
+        // Твоё точное расписание
+        const medSchedule = [
+            { time: "08:30", labelRu: "Завтрак: Лекарства", labelDe: "Frühstück: Insulin Medikamente" },
+            { time: "12:30", labelRu: "Обед: Лекарства", labelDe: "Mittagessen: Insulin Medikamente" },
+            { time: "17:00", labelRu: "Ужин: Лекарства", labelDe: "Abendessen: Insulin Medikamente" },
+            { time: "20:00", labelRu: "База: Тресиба (15 ед.)", labelDe: "Basis: Tresiba (15 Einheiten)" }
+        ];
+
+        const i18n = {
+            ru: {
+                mainTitle: "Мониторинг здоровья",
+                statusText: "Следующий приём через:",
+                soundLabel: "🔔 Сигнал оповещения:",
+                optDig: "Цифровой сигнал",
+                optGong: "Космический гонг",
+                optBowl: "Тибетская чаша",
+                alertTitle: "Время приёма! 💊",
+                btnConfirm: "Принял 👍",
+                notifTitle: "BioWolf Med",
+                notifBody: "Фёдор, пора принять лекарства!"
+            },
+            de: {
+                mainTitle: "Gesundheitsmonitor",
+                statusText: "Nächste Einnahme in:",
+                soundLabel: "🔔 Alarmsignal:",
+                optDig: "Digitaler Alarm",
+                optGong: "Weltraum-Gong",
+                optBowl: "Tibetische Schale",
+                alertTitle: "Zeit für Medikamente! 💊",
+                btnConfirm: "Bestätigen 👍",
+                notifTitle: "BioWolf Med",
+                notifBody: "Fedor, es ist Zeit für Ihre Medikamente!"
+            }
+        };
+
+        let currentLang = localStorage.getItem('med_lang') || 'ru';
+        let timerInterval = null;
+        let isAlarmActive = false;
+        
+        const countdownEl = document.getElementById('countdown-timer');
+        const ovEl = document.getElementById('overlay');
+        const alarmAudio = document.getElementById('alarm-sound');
+        const confirmBtn = document.getElementById('confirm-btn');
+        const streakEl = document.getElementById('streak-display');
+        const soundSelect = document.getElementById('alarm-sound-select');
+        const scheduleListEl = document.getElementById('schedule-list');
+
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('med_lang', lang);
+            document.documentElement.lang = lang;
+
+            document.getElementById('lang-ru').classList.toggle('active', lang === 'ru');
+            document.getElementById('lang-de').classList.toggle('active', lang === 'de');
+
+            document.getElementById('main-title').innerText = i18n[lang].mainTitle;
+            document.getElementById('status-text').innerText = i18n[lang].statusText;
+            document.getElementById('sound-label').innerText = i18n[lang].soundLabel;
+            document.getElementById('opt-dig').innerText = i18n[lang].optDig;
+            document.getElementById('opt-gong').innerText = i18n[lang].optGong;
+            document.getElementById('opt-bowl').innerText = i18n[lang].optBowl;
+            document.getElementById('alert-title').innerText = i18n[lang].alertTitle;
+            confirmBtn.innerText = i18n[lang].btnConfirm;
+
+            updateStreakDisplay();
+            renderSchedule();
+        }
+
+        function renderSchedule() {
+            scheduleListEl.innerHTML = "";
+            const nextEvent = getNextEvent();
+            
+            medSchedule.forEach(event => {
+                const li = document.createElement('li');
+                const label = currentLang === 'ru' ? event.labelRu : event.labelDe;
+                li.innerHTML = `<span>${event.time}</span> <span>${label}</span>`;
+                if (nextEvent && nextEvent.time === event.time) {
+                    li.classList.add('next-med');
+                }
+                scheduleListEl.appendChild(li);
+            });
+        }
+
+        function getNextEvent() {
+            const now = new Date();
+            let events = medSchedule.map(e => {
+                const [h, m] = e.time.split(':');
+                const d = new Date();
+                d.setHours(parseInt(h), parseInt(m), 0, 0);
+                
+                // Если это время сегодня уже прошло, переносим цель на завтра
+                if (d < now) {
+                    d.setDate(d.getDate() + 1);
+                }
+                return { ...e, dateTime: d };
+            });
+            
+            // Сортируем по хронологии, чтобы выдать самый ближайший приём
+            events.sort((a, b) => a.dateTime - b.dateTime);
+            return events[0];
+        }
+
+        function updateTimer() {
+            if (isAlarmActive) return;
+
+            const now = new Date();
+            const nextEvent = getNextEvent();
+            
+            if (!nextEvent) return;
+
+            const diff = nextEvent.dateTime - now;
+
+            // Если время совпало (или немного ушло вперед, пока страница была закрыта)
+            if (diff <= 0 || (nextEvent.dateTime.getDate() === now.getDate() && nextEvent.dateTime.getHours() === now.getHours() && nextEvent.dateTime.getMinutes() === now.getMinutes())) {
+                triggerAlarm(nextEvent);
+            } else {
+                const hours = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                const minutes = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                const seconds = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                countdownEl.innerText = `${hours}:${minutes}:${seconds}`;
+            }
+        }
+
+        function triggerAlarm(event) {
+            isAlarmActive = true;
+            ovEl.classList.add('active');
+            countdownEl.innerText = "00:00:00";
+            
+            document.getElementById('alert-instruction').innerText = 
+                currentLang === 'ru' ? event.labelRu : event.labelDe;
+
+            alarmAudio.src = soundSelect.value;
+            alarmAudio.play().catch(e => console.log("Браузер заблокировал звук до клика по экрану"));
+
+            if (Notification.permission === "granted") {
+                new Notification(i18n[currentLang].notifTitle, {
+                    body: currentLang === 'ru' ? event.labelRu : event.labelDe
+                });
+            }
+        }
+
+        function updateStreakDisplay() {
+            let currentStreak = parseInt(localStorage.getItem('med_streak')) || 0;
+            streakEl.innerText = `Bio-Score: ${currentStreak}`;
+        }
+
+        confirmBtn.addEventListener('click', () => {
+            ovEl.classList.remove('active');
+            alarmAudio.pause();
+            alarmAudio.currentTime = 0;
+            isAlarmActive = false;
+
+            let currentStreak = parseInt(localStorage.getItem('med_streak')) || 0;
+            currentStreak++;
+            localStorage.setItem('med_streak', currentStreak);
+            updateStreakDisplay();
+
+            renderSchedule();
+        });
+
+        document.getElementById('lang-ru').addEventListener('click', () => applyLanguage('ru'));
+        document.getElementById('lang-de').addEventListener('click', () => applyLanguage('de'));
+
+        soundSelect.addEventListener('change', () => {
+            alarmAudio.src = soundSelect.value;
+            alarmAudio.play().catch(e => console.log("Тест звука"));
+            setTimeout(() => { alarmAudio.pause(); alarmAudio.currentTime = 0; }, 1500);
+        });
+
+        applyLanguage(currentLang);
+        timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>
