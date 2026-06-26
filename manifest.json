@@ -1,0 +1,16 @@
+{
+  "name": "BioWolf Med-Reminder",
+  "short_name": "BioWolf Med",
+  "description": "Мониторинг здоровья и приёма лекарств",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0a0a0c",
+  "theme_color": "#ff5500",
+  "icons": [
+    {
+      "src": "wolf.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
