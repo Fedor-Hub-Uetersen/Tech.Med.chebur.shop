@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech.Med.chebur.shop Med-Reminder — Tech.chebur.shop</title>
+    <title>BioWolf Med-Reminder — Tech.chebur.shop</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -127,17 +127,16 @@
         <div class="streak-counter" id="streak-display">Bio-Score: 0</div>
 
         <div class="logo-area">
-            <div class="wolf-logo-placeholder">Tech.Med.chebur.shop</div>
+            <div class="wolf-logo-placeholder">BIOWOLF MED</div>
         </div>
 
         <h1 id="main-title">Мониторинг здоровья</h1>
         <div class="status" id="status-text">Следующий приём через:</div>
         <div class="timer" id="countdown-timer">00:00:00</div>
         
-      <div class="promo-video-container">
-            <video id="promo-player" autoplay loop muted playsinline controls preload="auto" style="width:100%; height:100%;">
-                <source src="https://raw.githubusercontent.com/Fedor-Hub-Uetersen/Tech.Med.chebur.shop/main/promo.mp4" type="video/mp4">
-                Ваш браузер не поддерживает видео.
+        <div class="promo-video-container">
+            <video id="promo-player" autoplay loop muted playsinline webkit-playsinline preload="auto">
+                <source src="promo.mp4" type="video/mp4">
             </video>
         </div>
 
@@ -175,7 +174,7 @@
         const medSchedule = [
             { id: "breakfast", time: "08:30", labelRu: "Завтрак: Лекарства", labelDe: "Frühstück: Medikamente" },
             { id: "lunch", time: "12:30", labelRu: "Обед: Лекарства", labelDe: "Mittagessen: Medikamente" },
-            { id: "dinner", time: "17:30", labelRu: "Ужин: Лекарства", labelDe: "Abendessen: Medikamente" },
+            { id: "dinner", time: "17:00", labelRu: "Ужин: Лекарства", labelDe: "Abendessen: Medikamente" },
             { id: "tresiba", time: "20:00", labelRu: "База: Тресиба (15 ед.)", labelDe: "Basis: Tresiba (15 Einheiten)" }
         ];
 
@@ -185,14 +184,14 @@
                 soundLabel: "🔔 Сигнал оповещения:", optDig: "Цифровой сигнал",
                 optGong: "Космический гонг", optBowl: "Тибетская чаша",
                 alertTitle: "Время приёма! 💊", btnConfirm: "Принял 👍",
-                notifTitle: "Tech.Med.chebur.shop", notifBody: "Друг, пора принять лекарства!"
+                notifTitle: "BioWolf Med", notifBody: "Фёдор, пора принять лекарства!"
             },
             de: {
                 mainTitle: "Gesundheitsmonitor", statusText: "Nächste Einnahme in:",
                 soundLabel: "🔔 Alarmsignal:", optDig: "Digitaler Alarm",
                 optGong: "Weltraum-Gong", optBowl: "Tibetische Schale",
                 alertTitle: "Zeit für Medikamente! 💊", btnConfirm: "Bestätigen 👍",
-                notifTitle: "Tech.Med.chebur.shop", notifBody: "Friend, es ist Zeit für Ihre Medikamente!"
+                notifTitle: "BioWolf Med", notifBody: "Fedor, es ist Zeit для Ihre Medikamente!"
             }
         };
 
@@ -248,7 +247,6 @@
             });
         }
 
-        // Высчитываем целевое событие
         function getNextTargetEvent() {
             const now = new Date();
             let list = medSchedule.map(e => {
@@ -256,7 +254,6 @@
                 const d = new Date();
                 d.setHours(parseInt(h), parseInt(m), 0, 0);
                 
-                // Проверяем, подтверждал ли уже пользователь этот приём сегодня
                 const lastConfirmed = localStorage.getItem(`conf_${e.id}`);
                 const todayStr = now.toDateString();
                 
@@ -268,10 +265,9 @@
                 return { event: e, dateTime: targetDate, isMissed: (d <= now && lastConfirmed !== todayStr) };
             });
 
-            // Если есть пропущенные приёмы за сегодня, которые ещё не подтвердили — выкидываем их в приоритет будильника
             const missed = list.filter(l => l.isMissed);
             if (missed.length > 0) {
-                missed.sort((a, b) => b.dateTime - a.dateTime); // Берем самый актуальный пропущенный
+                missed.sort((a, b) => b.dateTime - a.dateTime);
                 return { event: missed[0].event, dateTime: missed[0].dateTime, triggerNow: true };
             }
 
@@ -280,7 +276,7 @@
         }
 
         function updateTimer() {
-            if (activeAlarmEvent) return; // Если уже звонит, таймер не трогаем
+            if (activeAlarmEvent) return;
 
             const now = new Date();
             const target = getNextTargetEvent();
@@ -320,7 +316,7 @@
         confirmBtn.addEventListener('click', () => {
             if (activeAlarmEvent) {
                 const todayStr = new Date().toDateString();
-                localStorage.setItem(`conf_${activeAlarmEvent.id}`, todayStr); // Запоминаем, что этот приём за сегодня выполнен
+                localStorage.setItem(`conf_${activeAlarmEvent.id}`, todayStr);
             }
 
             ovEl.classList.remove('active');
@@ -341,6 +337,20 @@
             alarmAudio.src = soundSelect.value;
             alarmAudio.play().catch(e => console.log("Тест звука"));
             setTimeout(() => { alarmAudio.pause(); alarmAudio.currentTime = 0; }, 1500);
+        });
+
+        // Скрипт принудительного обхода блокировки автозапуска видео
+        window.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('promo-player');
+            if (video) {
+                video.muted = true;
+                video.play().catch(error => {
+                    console.log("Автозапуск заблокирован, включаем триггер на первый клик:", error);
+                    document.addEventListener('click', () => {
+                        video.play();
+                    }, { once: true });
+                });
+            }
         });
 
         applyLanguage(currentLang);
