@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech.Med.chebur.shop Med-Reminder — Tech.chebur.shop</title>
+    <title>BioWolf Med-Reminder — Tech.chebur.shop</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -34,20 +34,21 @@
             flex-direction: column;
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
+            min-height: 100vh; 
             margin: 0; 
-            overflow: hidden; 
+            overflow-x: hidden; 
         }
 
         .container { 
             position: relative;
             text-align: center; 
             background: var(--card); 
-            padding: 40px; 
+            padding: 30px 25px; 
             border-radius: 20px; 
             border: 2px solid var(--accent);
             box-shadow: 0 0 25px rgba(255, 85, 0, 0.2), inset 0 0 15px rgba(255, 85, 0, 0.1); 
-            width: 380px; 
+            width: 360px; 
+            margin: 20px 0;
         }
 
         .lang-switcher {
@@ -58,83 +59,59 @@
             gap: 8px;
         }
         .lang-btn {
-            background: #1a1a24;
-            border: 1px solid #444;
-            color: #8a8a93;
-            padding: 3px 8px;
-            font-size: 11px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
+            background: #1a1a24; border: 1px solid #444; color: #8a8a93;
+            padding: 3px 8px; font-size: 11px; border-radius: 5px;
+            cursor: pointer; font-weight: bold; transition: all 0.3s;
         }
         .lang-btn.active {
-            border-color: var(--med-color);
-            color: #fff;
-            box-shadow: 0 0 5px var(--med-color);
+            border-color: var(--med-color); color: #fff; box-shadow: 0 0 5px var(--med-color);
         }
 
         .streak-counter {
             position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            color: var(--music);
-            text-shadow: 0 0 5px var(--music);
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            top: 15px; right: 20px; font-size: 11px; font-weight: bold;
+            color: var(--music); text-shadow: 0 0 5px var(--music);
+            letter-spacing: 1px; text-transform: uppercase;
         }
 
-        .logo-area {
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
+        .logo-area { margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; }
         .wolf-logo-placeholder {
-            font-size: 18px; 
-            font-weight: bold;
-            letter-spacing: 2px;
-            color: #fff;
-            text-shadow: var(--neon-glow);
-            border: 1px dashed rgba(255, 85, 0, 0.4);
-            padding: 10px 20px;
-            border-radius: 10px;
-            text-transform: uppercase;
+            font-size: 16px; font-weight: bold; letter-spacing: 2px; color: #fff;
+            text-shadow: var(--neon-glow); border: 1px dashed rgba(255, 85, 0, 0.4);
+            padding: 8px 15px; border-radius: 10px; text-transform: uppercase;
         }
 
-        h1 { font-size: 22px; color: #fff; text-shadow: var(--neon-glow); margin: 15px 0 5px 0; text-transform: uppercase; }
-        .timer { font-size: 48px; font-weight: bold; margin: 10px 0; font-variant-numeric: tabular-nums; text-shadow: 0 0 10px #fff; color: var(--med-color); }
-        .status { font-size: 13px; color: #8a8a93; letter-spacing: 1px; text-transform: uppercase; }
+        h1 { font-size: 20px; color: #fff; text-shadow: var(--neon-glow); margin: 15px 0 5px 0; text-transform: uppercase; }
+        .timer { font-size: 42px; font-weight: bold; margin: 5px 0; font-variant-numeric: tabular-nums; text-shadow: 0 0 10px #fff; color: var(--med-color); }
+        .status { font-size: 12px; color: #8a8a93; letter-spacing: 1px; text-transform: uppercase; }
         
-        .med-schedule {
+        /* РЕКЛАМНЫЙ ВИДЕОПЛЕЕР */
+        .promo-video-container {
             margin: 15px 0;
-            padding: 0;
-            list-style: none;
-            text-align: left;
-            font-size: 13px;
-            color: #bbb;
+            width: 100%;
+            border-radius: 12px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 16 / 9;
+        }
+        .promo-video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .med-schedule {
+            margin: 15px 0; padding: 0; list-style: none; text-align: left; font-size: 13px; color: #bbb;
         }
         .med-schedule li {
-            padding: 5px 0;
-            border-bottom: 1px solid #1a1a24;
-            display: flex;
-            justify-content: space-between;
+            padding: 5px 0; border-bottom: 1px solid #1a1a24; display: flex; justify-content: space-between;
         }
-        .med-schedule li.next-med {
-            color: var(--med-color);
-            font-weight: bold;
-        }
+        .med-schedule li.next-med { color: var(--med-color); font-weight: bold; }
 
-        .sound-selector {
-            margin: 10px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
+        .sound-selector { margin: 10px 0; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .sound-selector label { font-size: 11px; color: #8a8a93; text-transform: uppercase; }
         .sound-selector select {
             background: #1a1a24; color: #fff; border: 1px solid var(--accent);
@@ -166,13 +143,20 @@
         <div class="streak-counter" id="streak-display">Bio-Score: 0</div>
 
         <div class="logo-area">
-            <div class="wolf-logo-placeholder">Tech.Med.chebur.shop</div>
+            <div class="wolf-logo-placeholder">BIOWOLF MED</div>
         </div>
 
         <h1 id="main-title">Мониторинг здоровья</h1>
         <div class="status" id="status-text">Следующий приём через:</div>
         <div class="timer" id="countdown-timer">00:00:00</div>
         
+        <div class="promo-video-container">
+            <video id="promo-player" autoplay loop muted playsinline preload="auto">
+                <source src="promo.mp4" type="video/mp4">
+                Ваш браузер не поддерживает видео.
+            </video>
+        </div>
+
         <ul class="med-schedule" id="schedule-list"></ul>
 
         <div class="sound-selector">
@@ -200,7 +184,6 @@
     <audio id="alarm-sound" preload="auto" loop></audio>
 
     <script>
-        // РЕГИСТРАЦИЯ SERVICE WORKER ДЛЯ РАБОТЫ НА ЭКРАНЕ ДОМОЙ
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
         }
@@ -214,28 +197,18 @@
 
         const i18n = {
             ru: {
-                mainTitle: "Мониторинг здоровья",
-                statusText: "Следующий приём через:",
-                soundLabel: "🔔 Сигнал оповещения:",
-                optDig: "Цифровой сигнал",
-                optGong: "Космический гонг",
-                optBowl: "Тибетская чаша",
-                alertTitle: "Время приёма! 💊",
-                btnConfirm: "Принял 👍",
-                notifTitle: "BioWolf Med",
-                notifBody: "Фёдор, пора принять лекарства!"
+                mainTitle: "Мониторинг здоровья", statusText: "Следующий приём через:",
+                soundLabel: "🔔 Сигнал оповещения:", optDig: "Цифровой сигнал",
+                optGong: "Космический гонг", optBowl: "Тибетская чаша",
+                alertTitle: "Время приёма! 💊", btnConfirm: "Принял 👍",
+                notifTitle: "BioWolf Med", notifBody: "Фёдор, пора принять лекарства!"
             },
             de: {
-                mainTitle: "Gesundheitsmonitor",
-                statusText: "Nächste Einnahme in:",
-                soundLabel: "🔔 Alarmsignal:",
-                optDig: "Digitaler Alarm",
-                optGong: "Weltraum-Gong",
-                optBowl: "Tibetische Schale",
-                alertTitle: "Zeit für Medikamente! 💊",
-                btnConfirm: "Bestätigen 👍",
-                notifTitle: "BioWolf Med",
-                notifBody: "Fedor, es ist Zeit für Ihre Medikamente!"
+                mainTitle: "Gesundheitsmonitor", statusText: "Nächste Einnahme in:",
+                soundLabel: "🔔 Alarmsignal:", optDig: "Digitaler Alarm",
+                optGong: "Weltraum-Gong", optBowl: "Tibetische Schale",
+                alertTitle: "Zeit für Medikamente! 💊", btnConfirm: "Bestätigen 👍",
+                notifTitle: "BioWolf Med", notifBody: "Fedor, es ist Zeit für Ihre Medikamente!"
             }
         };
 
