@@ -85,30 +85,14 @@
         .timer { font-size: 42px; font-weight: bold; margin: 5px 0; font-variant-numeric: tabular-nums; text-shadow: 0 0 10px #fff; color: var(--med-color); }
         .status { font-size: 12px; color: #8a8a93; letter-spacing: 1px; text-transform: uppercase; }
         
-        /* РЕКЛАМНЫЙ ВИДЕОПЛЕЕР */
         .promo-video-container {
-            margin: 15px 0;
-            width: 100%;
-            border-radius: 12px;
-            border: 2px solid var(--accent);
-            box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
-            overflow: hidden;
-            background: #000;
-            aspect-ratio: 16 / 9;
+            margin: 15px 0; width: 100%; border-radius: 12px; border: 2px solid var(--accent);
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.3); overflow: hidden; background: #000; aspect-ratio: 16 / 9;
         }
-        .promo-video-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
+        .promo-video-container video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        .med-schedule {
-            margin: 15px 0; padding: 0; list-style: none; text-align: left; font-size: 13px; color: #bbb;
-        }
-        .med-schedule li {
-            padding: 5px 0; border-bottom: 1px solid #1a1a24; display: flex; justify-content: space-between;
-        }
+        .med-schedule { margin: 15px 0; padding: 0; list-style: none; text-align: left; font-size: 13px; color: #bbb; }
+        .med-schedule li { padding: 5px 0; border-bottom: 1px solid #1a1a24; display: flex; justify-content: space-between; }
         .med-schedule li.next-med { color: var(--med-color); font-weight: bold; }
 
         .sound-selector { margin: 10px 0; display: flex; flex-direction: column; align-items: center; gap: 5px; }
@@ -153,7 +137,6 @@
         <div class="promo-video-container">
             <video id="promo-player" autoplay loop muted playsinline preload="auto">
                 <source src="promo.mp4" type="video/mp4">
-                Ваш браузер не поддерживает видео.
             </video>
         </div>
 
@@ -189,10 +172,10 @@
         }
 
         const medSchedule = [
-            { time: "08:30", labelRu: "Завтрак: Лекарства", labelDe: "Frühstück: Medikamente" },
-            { time: "12:30", labelRu: "Обед: Лекарства", labelDe: "Mittagessen: Medikamente" },
-            { time: "17:00", labelRu: "Ужин: Лекарства", labelDe: "Abendessen: Medikamente" },
-            { time: "20:00", labelRu: "База: Тресиба (15 ед.)", labelDe: "Basis: Tresiba (15 Einheiten)" }
+            { id: "breakfast", time: "08:30", labelRu: "Завтрак: Лекарства", labelDe: "Frühstück: Medikamente" },
+            { id: "lunch", time: "12:30", labelRu: "Обед: Лекарства", labelDe: "Mittagessen: Medikamente" },
+            { id: "dinner", time: "17:00", labelRu: "Ужин: Лекарства", labelDe: "Abendessen: Medikamente" },
+            { id: "tresiba", time: "20:00", labelRu: "База: Тресиба (15 ед.)", labelDe: "Basis: Tresiba (15 Einheiten)" }
         ];
 
         const i18n = {
@@ -214,7 +197,7 @@
 
         let currentLang = localStorage.getItem('med_lang') || 'ru';
         let timerInterval = null;
-        let isAlarmActive = false;
+        let activeAlarmEvent = null;
         
         const countdownEl = document.getElementById('countdown-timer');
         const ovEl = document.getElementById('overlay');
@@ -251,42 +234,62 @@
 
         function renderSchedule() {
             scheduleListEl.innerHTML = "";
-            const nextEvent = getNextEvent();
+            const nextEvent = getNextTargetEvent().event;
             
             medSchedule.forEach(event => {
                 const li = document.createElement('li');
                 const label = currentLang === 'ru' ? event.labelRu : event.labelDe;
                 li.innerHTML = `<span>${event.time}</span> <span>${label}</span>`;
-                if (nextEvent && nextEvent.time === event.time) {
+                if (nextEvent && nextEvent.id === event.id) {
                     li.classList.add('next-med');
                 }
                 scheduleListEl.appendChild(li);
             });
         }
 
-        function getNextEvent() {
+        // Высчитываем целевое событие
+        function getNextTargetEvent() {
             const now = new Date();
-            let events = medSchedule.map(e => {
+            let list = medSchedule.map(e => {
                 const [h, m] = e.time.split(':');
                 const d = new Date();
                 d.setHours(parseInt(h), parseInt(m), 0, 0);
-                if (d < now) d.setDate(d.getDate() + 1);
-                return { ...e, dateTime: d };
+                
+                // Проверяем, подтверждал ли уже пользователь этот приём сегодня
+                const lastConfirmed = localStorage.getItem(`conf_${e.id}`);
+                const todayStr = now.toDateString();
+                
+                let targetDate = new Date(d);
+                if (lastConfirmed === todayStr || d < now) {
+                    targetDate.setDate(targetDate.getDate() + 1);
+                }
+                
+                return { event: e, dateTime: targetDate, isMissed: (d <= now && lastConfirmed !== todayStr) };
             });
-            events.sort((a, b) => a.dateTime - b.dateTime);
-            return events[0];
+
+            // Если есть пропущенные приёмы за сегодня, которые ещё не подтвердили — выкидываем их в приоритет будильника
+            const missed = list.filter(l => l.isMissed);
+            if (missed.length > 0) {
+                missed.sort((a, b) => b.dateTime - a.dateTime); // Берем самый актуальный пропущенный
+                return { event: missed[0].event, dateTime: missed[0].dateTime, triggerNow: true };
+            }
+
+            list.sort((a, b) => a.dateTime - b.dateTime);
+            return list[0];
         }
 
         function updateTimer() {
-            if (isAlarmActive) return;
-            const now = new Date();
-            const nextEvent = getNextEvent();
-            if (!nextEvent) return;
-            const diff = nextEvent.dateTime - now;
+            if (activeAlarmEvent) return; // Если уже звонит, таймер не трогаем
 
-            if (diff <= 0 || (nextEvent.dateTime.getDate() === now.getDate() && nextEvent.dateTime.getHours() === now.getHours() && nextEvent.dateTime.getMinutes() === now.getMinutes())) {
-                triggerAlarm(nextEvent);
+            const now = new Date();
+            const target = getNextTargetEvent();
+            
+            if (!target || !target.event) return;
+
+            if (target.triggerNow || target.dateTime - now <= 0) {
+                triggerAlarm(target.event);
             } else {
+                const diff = target.dateTime - now;
                 const hours = Math.floor(diff / 3600000).toString().padStart(2, '0');
                 const minutes = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
                 const seconds = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
@@ -295,12 +298,13 @@
         }
 
         function triggerAlarm(event) {
-            isAlarmActive = true;
+            activeAlarmEvent = event;
             ovEl.classList.add('active');
             countdownEl.innerText = "00:00:00";
+            
             document.getElementById('alert-instruction').innerText = currentLang === 'ru' ? event.labelRu : event.labelDe;
             alarmAudio.src = soundSelect.value;
-            alarmAudio.play().catch(e => console.log("Блокировка звука"));
+            alarmAudio.play().catch(e => console.log("Ждем клика по экрану для звука"));
 
             if (Notification.permission === "granted") {
                 new Notification(i18n[currentLang].notifTitle, { body: currentLang === 'ru' ? event.labelRu : event.labelDe });
@@ -313,10 +317,16 @@
         }
 
         confirmBtn.addEventListener('click', () => {
+            if (activeAlarmEvent) {
+                const todayStr = new Date().toDateString();
+                localStorage.setItem(`conf_${activeAlarmEvent.id}`, todayStr); // Запоминаем, что этот приём за сегодня выполнен
+            }
+
             ovEl.classList.remove('active');
             alarmAudio.pause();
             alarmAudio.currentTime = 0;
-            isAlarmActive = false;
+            activeAlarmEvent = null;
+
             let currentStreak = parseInt(localStorage.getItem('med_streak')) || 0;
             currentStreak++;
             localStorage.setItem('med_streak', currentStreak);
