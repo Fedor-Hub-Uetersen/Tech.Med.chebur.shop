@@ -125,9 +125,7 @@
         <div class="sound-selector">
             <label for="alarm-sound-select" id="sound-label">🔔 СИГНАЛ ТРЕВОГИ:</label>
             <select id="alarm-sound-select">
-                <option value="gong.mp3" id="opt-gong">Космический гонг</option>
-                <option value="digital.mp3" id="opt-dig">Цифровой сигнал</option>
-                <option value="bowl.mp3" id="opt-bowl" selected>Тибетская чаша</option>
+                <option value="digital" selected>Электронный сигнал</option>
             </select>
         </div>
 
@@ -153,28 +151,41 @@
         let currentLang = localStorage.getItem('med_lang') || 'ru';
         let activeAlarmEvent = null;
         let audioCtx = null;
-        
-        const countdownEl = document.getElementById('countdown-timer');
-        const ovEl = document.getElementById('overlay');
-        const confirmBtn = document.getElementById('confirm-btn');
-        const scheduleListEl = document.getElementById('schedule-list');
+        let soundInterval = null;
 
-        // Встроенный генератор звука для Android APK (работает 100% без внешних файлов)
-        function playBeepSound() {
+        // ПРЯМОЙ СИСТЕМНЫЙ ЗВУКОВАЯ СИГНАЛИЗАЦИЯ ДЛЯ ANDROID
+        function startAlarmSound() {
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Тон D5 (Чаша)
-                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 2.5);
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                soundInterval = setInterval(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Нота Ля (880Hz)
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.5);
+                }, 800);
             } catch(e) { console.log(e); }
         }
+
+        function stopAlarmSound() {
+            if (soundInterval) {
+                clearInterval(soundInterval);
+                soundInterval = null;
+            }
+        }
+
+        // Разблокировка системного динамика при первом касании
+        document.addEventListener('click', () => {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }, { once: true });
 
         function applyLanguage(lang) {
             currentLang = lang;
@@ -242,12 +253,13 @@
             ovEl.classList.add('active');
             countdownEl.innerText = "00:00:00";
             document.getElementById('alert-instruction').innerText = currentLang === 'ru' ? event.labelRu : event.labelDe;
-            playBeepSound();
+            startAlarmSound();
         }
 
         confirmBtn.addEventListener('click', () => {
             ovEl.classList.remove('active');
             activeAlarmEvent = null;
+            stopAlarmSound();
             renderSchedule();
         });
 
