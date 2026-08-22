@@ -112,7 +112,7 @@
 
         <h1 id="main-title">МОНИТОР ЗДОРОВЬЯ</h1>
         <div class="status" id="status-text">СЛЕДУЮЩИЙ ПРИЁМ ЧЕРЕЗ:</div>
-        <div class="timer" id="countdown-timer">--:--:--</div>
+        <div class="timer" id="countdown-timer">00:00:00</div>
         
         <div class="promo-container">
             <video id="promo-player" autoplay loop muted playsinline controls preload="auto">
@@ -125,7 +125,7 @@
         <div class="sound-selector">
             <label for="alarm-sound-select" id="sound-label">🔔 СИГНАЛ ТРЕВОГИ:</label>
             <select id="alarm-sound-select">
-                <option value="digital" selected>Электронный сигнал</option>
+                <option value="beep" selected>Электронный сигнал</option>
             </select>
         </div>
 
@@ -142,46 +142,55 @@
 
     <script>
         const medSchedule = [
-            { id: "breakfast", hours: 8, minutes: 30, labelRu: "Завтрак: Приём инсулина", labelDe: "Frühstück: Insulin" },
-            { id: "lunch", hours: 12, minutes: 30, labelRu: "Обед: Приём инсулина", labelDe: "Mittagessen: Insulin" },
-            { id: "dinner", hours: 17, minutes: 30, labelRu: "Ужин: Приём инсулина", labelDe: "Abendessen: Insulin" },
-            { id: "tresiba", hours: 19, minutes: 0, labelRu: "База: Тресиба, 16 единиц", labelDe: "Basis: Tresiba, 16 Einheiten" }
+            { id: "breakfast", time: "08:30", labelRu: "Завтрак: Приём инсулина", labelDe: "Frühstück: Insulin" },
+            { id: "lunch", time: "12:30", labelRu: "Обед: Приём инсулина", labelDe: "Mittagessen: Insulin" },
+            { id: "dinner", time: "17:30", labelRu: "Ужин: Приём инсулина", labelDe: "Abendessen: Insulin" },
+            { id: "tresiba", time: "19:00", labelRu: "База: Тресиба, 16 единиц", labelDe: "Basis: Tresiba, 16 Einheiten" }
         ];
 
         let currentLang = localStorage.getItem('med_lang') || 'ru';
         let activeAlarmEvent = null;
         let audioCtx = null;
-        let soundInterval = null;
+        let alarmTimer = null;
+        
+        const countdownEl = document.getElementById('countdown-timer');
+        const ovEl = document.getElementById('overlay');
+        const confirmBtn = document.getElementById('confirm-btn');
+        const scheduleListEl = document.getElementById('schedule-list');
 
-        // ПРЯМОЙ СИСТЕМНЫЙ ЗВУКОВАЯ СИГНАЛИЗАЦИЯ ДЛЯ ANDROID
-        function startAlarmSound() {
+        function playSound() {
             try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-
-                soundInterval = setInterval(() => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Нота Ля (880Hz)
-                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.5);
-                }, 800);
-            } catch(e) { console.log(e); }
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } catch(e) {}
         }
 
-        function stopAlarmSound() {
-            if (soundInterval) {
-                clearInterval(soundInterval);
-                soundInterval = null;
+        function startBeeping() {
+            playSound();
+            alarmTimer = setInterval(playSound, 1000);
+        }
+
+        function stopBeeping() {
+            if (alarmTimer) {
+                clearInterval(alarmTimer);
+                alarmTimer = null;
             }
         }
 
-        // Разблокировка системного динамика при первом касании
         document.addEventListener('click', () => {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -197,34 +206,31 @@
 
         function getNextTargetEvent() {
             const now = new Date();
-            let nextEvent = null;
-            let minDiff = Infinity;
-
-            medSchedule.forEach(e => {
-                let target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), e.hours, e.minutes, 0, 0);
-                if (target <= now) {
-                    target.setDate(target.getDate() + 1);
+            let list = medSchedule.map(e => {
+                const parts = e.time.split(':');
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(parts[0]), parseInt(parts[1]), 0, 0);
+                
+                let targetDate = new Date(d);
+                if (d <= now) {
+                    targetDate.setDate(targetDate.getDate() + 1);
                 }
-                let diff = target - now;
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    nextEvent = { event: e, dateTime: target, diff: diff };
-                }
+                
+                return { event: e, dateTime: targetDate };
             });
 
-            return nextEvent;
+            list.sort((a, b) => a.dateTime - b.dateTime);
+            return list[0];
         }
 
         function renderSchedule() {
             scheduleListEl.innerHTML = "";
             const nextData = getNextTargetEvent();
             
-            medSchedule.forEach(e => {
+            medSchedule.forEach(event => {
                 const li = document.createElement('li');
-                const timeStr = `${e.hours.toString().padStart(2, '0')}:${e.minutes.toString().padStart(2, '0')}`;
-                const label = currentLang === 'ru' ? e.labelRu : e.labelDe;
-                li.innerHTML = `<span>${timeStr}</span> <span>${label}</span>`;
-                if (nextData && nextData.event && nextData.event.id === e.id) {
+                const label = currentLang === 'ru' ? event.labelRu : event.labelDe;
+                li.innerHTML = `<span>${event.time}</span> <span>${label}</span>`;
+                if (nextData && nextData.event && nextData.event.id === event.id) {
                     li.classList.add('next-med');
                 }
                 scheduleListEl.appendChild(li);
@@ -234,12 +240,15 @@
         function updateTimer() {
             if (activeAlarmEvent) return;
 
-            const nextData = getNextTargetEvent();
-            if (!nextData) return;
+            const now = new Date();
+            const target = getNextTargetEvent();
+            
+            if (!target || !target.dateTime) return;
 
-            const diff = nextData.diff;
+            const diff = target.dateTime - now;
+            
             if (diff <= 1000) {
-                triggerAlarm(nextData.event);
+                triggerAlarm(target.event);
             } else {
                 const hours = Math.floor(diff / 3600000).toString().padStart(2, '0');
                 const minutes = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
@@ -253,13 +262,13 @@
             ovEl.classList.add('active');
             countdownEl.innerText = "00:00:00";
             document.getElementById('alert-instruction').innerText = currentLang === 'ru' ? event.labelRu : event.labelDe;
-            startAlarmSound();
+            startBeeping();
         }
 
         confirmBtn.addEventListener('click', () => {
             ovEl.classList.remove('active');
+            stopBeeping();
             activeAlarmEvent = null;
-            stopAlarmSound();
             renderSchedule();
         });
 
