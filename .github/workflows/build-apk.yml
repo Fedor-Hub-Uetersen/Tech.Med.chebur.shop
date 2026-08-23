@@ -42,10 +42,11 @@ jobs:
         APK_PATH=$(find . -name "*-release-unsigned.apk" -o -name "*-release.apk" | head -n 1)
         echo "Found APK at: $APK_PATH"
         DIR=$(dirname "$APK_PATH")
+        FILE=$(basename "$APK_PATH")
         cd "$DIR"
         keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "$PASS" -keypass "$PASS" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
-        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore fedor.keystore -storepass "$PASS" -keypass "$PASS" $(basename "$APK_PATH") fedorkey
-        cp $(basename "$APK_PATH") "$GITHUB_WORKSPACE/fedor-health-monitor.apk"
+        jarsigner -keystore fedor.keystore -storepass "$PASS" -keypass "$PASS" "$FILE" fedorkey
+        cp "$FILE" "$GITHUB_WORKSPACE/fedor-health-monitor.apk"
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
