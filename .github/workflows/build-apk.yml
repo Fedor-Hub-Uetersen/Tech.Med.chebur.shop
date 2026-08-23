@@ -29,26 +29,29 @@ jobs:
 
     - name: Setup and Build Cordova App
       run: |
-        cordova create myApp com.fedor.healthmonitor "HealthMonitor"
-        cp index.html myApp/www/
+        cordova create myApp com.fedor.healthmonitor "HealthMonitor" || true
+        cp index.html myApp/www/ || true
         cd myApp
-        cordova platform add android
+        cordova platform add android || true
         cordova build android --release
 
-    - name: Sign APK
+    - name: Find and Sign APK
       env:
         PASS: ${{ secrets.KEYSTORE_PASSWORD }}
       run: |
-        cd myApp/platforms/android/app/build/outputs/apk/release
+        APK_PATH=$(find . -name "*-release-unsigned.apk" -o -name "*-release.apk" | head -n 1)
+        echo "Found APK at: $APK_PATH"
+        DIR=$(dirname "$APK_PATH")
+        cd "$DIR"
         keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "$PASS" -keypass "$PASS" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
-        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore fedor.keystore -storepass "$PASS" -keypass "$PASS" app-release-unsigned.apk fedorkey
-        mv app-release-unsigned.apk fedor-health-monitor.apk
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore fedor.keystore -storepass "$PASS" -keypass "$PASS" $(basename "$APK_PATH") fedorkey
+        cp $(basename "$APK_PATH") "$GITHUB_WORKSPACE/fedor-health-monitor.apk"
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v1.0.${{ github.run_number }}
         name: Release APK #${{ github.run_number }}
-        files: myApp/platforms/android/app/build/outputs/apk/release/fedor-health-monitor.apk
+        files: fedor-health-monitor.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
