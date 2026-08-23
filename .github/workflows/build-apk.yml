@@ -2,7 +2,7 @@ name: Build and Release Android APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -10,43 +10,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
 
-      - name: Setup Java JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
+    - name: Set up Java JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+    - name: Install Cordova
+      run: npm install -g cordova
 
-      - name: Build APK with Cordova
-        run: |
-          npm install -g cordova
-          cordova create appmed com.fedor.meds "MedsControl"
-          cd appmed
-          rm -rf www/*
-          cp -r ../* www/ || true
-          # Принудительно копируем index.html в www
-          cp ../index.html www/index.html
-          cordova platform add android
-          cordova build android --debug
-          mv platforms/android/app/build/outputs/apk/debug/app-debug.apk ../MedsControl.apk
+    - name: Prepare Cordova project
+      run: |
+        cordova platform add android || true
+        cordova build android --release
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v1.0.${{ github.run_number }}
-          name: MedsControl v1.0.${{ github.run_number }}
-          body: |
-            Автоматическая сборка приложения MedsControl от Фёдора.
-          files: MedsControl.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.MY_RELEASE_TOKEN }}
+    - name: Generate Keystore and Sign APK
+      run: |
+        cd platforms/android/app/build/outputs/apk/release
+        keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEYSTORE_PASSWORD }}" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore fedor.keystore -storepass "${{ secrets.KEYSTORE_PASSWORD }}" app-release-unsigned.apk fedorkey
+        $ANDROID_HOME/build-tools/33.0.2/zipalign -v 4 app-release-unsigned.apk fedor-health-monitor.apk
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v1.0.${{ github.run_number }}
+        name: Release APK #${{ github.run_number }}
+        files: platforms/android/app/build/outputs/apk/release/fedor-health-monitor.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
