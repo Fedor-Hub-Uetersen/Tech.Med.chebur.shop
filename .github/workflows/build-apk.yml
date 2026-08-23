@@ -27,29 +27,26 @@ jobs:
     - name: Install Cordova
       run: npm install -g cordova
 
-    - name: Build Cordova Project
+    - name: Setup and Build Cordova App
       run: |
-        cordova platform add android || true
+        cordova create myApp com.fedor.healthmonitor "HealthMonitor"
+        cp index.html myApp/www/
+        cd myApp
+        cordova platform add android
         cordova build android --release
 
-    - name: Generate Keystore and Sign APK
+    - name: Sign APK with Keystore
       run: |
-        APK_DIR="platforms/android/app/build/outputs/apk/release"
-        if [ -d "$APK_DIR" ]; then
-          cd $APK_DIR
-          keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEYSTORE_PASSWORD }}" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
-          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore fedor.keystore -storepass "${{ secrets.KEYSTORE_PASSWORD }}" app-release-unsigned.apk fedorkey
-          $ANDROID_HOME/build-tools/33.0.2/zipalign -v 4 app-release-unsigned.apk fedor-health-monitor.apk
-        else
-          echo "APK directory not found!"
-          exit 1
-        fi
+        cd myApp/platforms/android/app/build/outputs/apk/release
+        keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEYSTORE_PASSWORD }}" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore fedor.keystore -storepass "${{ secrets.KEYSTORE_PASSWORD }}" app-release-unsigned.apk fedorkey
+        $ANDROID_HOME/build-tools/33.0.2/zipalign -v 4 app-release-unsigned.apk fedor-health-monitor.apk
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v1.0.${{ github.run_number }}
         name: Release APK #${{ github.run_number }}
-        files: platforms/android/app/build/outputs/apk/release/fedor-health-monitor.apk
+        files: myApp/platforms/android/app/build/outputs/apk/release/fedor-health-monitor.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
