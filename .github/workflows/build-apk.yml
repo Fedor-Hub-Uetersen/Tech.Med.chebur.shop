@@ -21,32 +21,31 @@ jobs:
     - name: Set up Java JDK
       uses: actions/setup-java@v4
       with:
-        distribution: 'zulu'
+        distribution: 'temurin'
         java-version: '17'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
 
     - name: Install Cordova
       run: npm install -g cordova
 
     - name: Setup and Build Cordova App
       run: |
-        cordova create myApp com.fedor.healthmonitor "HealthMonitor" || true
-        cp index.html myApp/www/ || true
+        cordova create myApp com.fedor.healthmonitor "HealthMonitor"
+        cp index.html myApp/www/
         cd myApp
-        cordova platform add android || true
+        cordova platform add android@12.0.1
         cordova build android --release
 
-    - name: Find and Sign APK
+    - name: Sign APK
       env:
         PASS: ${{ secrets.KEYSTORE_PASSWORD }}
       run: |
-        APK_PATH=$(find . -name "*-release-unsigned.apk" -o -name "*-release.apk" | head -n 1)
-        echo "Found APK at: $APK_PATH"
-        DIR=$(dirname "$APK_PATH")
-        FILE=$(basename "$APK_PATH")
-        cd "$DIR"
+        cd myApp/platforms/android/app/build/outputs/apk/release
         keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "$PASS" -keypass "$PASS" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
-        jarsigner -keystore fedor.keystore -storepass "$PASS" -keypass "$PASS" "$FILE" fedorkey
-        cp "$FILE" "$GITHUB_WORKSPACE/fedor-health-monitor.apk"
+        jarsigner -keystore fedor.keystore -storepass "$PASS" -keypass "$PASS" app-release-unsigned.apk fedorkey
+        mv app-release-unsigned.apk "$GITHUB_WORKSPACE/fedor-health-monitor.apk"
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
