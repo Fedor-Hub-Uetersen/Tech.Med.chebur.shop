@@ -33,10 +33,10 @@ jobs:
         cp index.html myApp/www/
         cd myApp
 
-        # Генерация ключа с фиксированным паролем без спецсимволов
-        keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "FedorKey123456" -keypass "FedorKey123456" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
+        # Генерация ключа в современном формате PKCS12
+        keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "FedorKey123456" -keypass "FedorKey123456" -storetype PKCS12 -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
 
-        # Создание файла build.json
+        # Создаем build.json с явным указанием packageType: apk
         cat <<EOF > build.json
         {
           "android": {
@@ -45,7 +45,7 @@ jobs:
               "storePassword": "FedorKey123456",
               "alias": "fedorkey",
               "keyPassword": "FedorKey123456",
-              "keystoreType": ""
+              "packageType": "apk"
             }
           }
         }
@@ -54,9 +54,8 @@ jobs:
         cordova platform add android
         cordova build android --release --buildConfig=build.json
 
-        # Поиск и копирование подписанного APK
-        APK_PATH=$(find platforms/android/app/build/outputs/apk/release/ -name "*.apk" | head -n 1)
-        cp "$APK_PATH" "$GITHUB_WORKSPACE/fedor-health-monitor.apk"
+        # Копируем готовый APK
+        cp platforms/android/app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/fedor-health-monitor.apk"
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
