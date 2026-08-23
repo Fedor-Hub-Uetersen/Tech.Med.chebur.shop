@@ -21,31 +21,44 @@ jobs:
     - name: Set up Java JDK
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
+        distribution: 'zulu'
         java-version: '17'
-
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
 
     - name: Install Cordova
       run: npm install -g cordova
 
-    - name: Setup and Build Cordova App
+    - name: Setup Cordova App and Sign
+      env:
+        PASS: ${{ secrets.KEYSTORE_PASSWORD }}
       run: |
         cordova create myApp com.fedor.healthmonitor "HealthMonitor"
         cp index.html myApp/www/
         cd myApp
-        cordova platform add android@12.0.1
-        cordova build android --release
 
-    - name: Sign APK
-      env:
-        PASS: ${{ secrets.KEYSTORE_PASSWORD }}
-      run: |
-        cd myApp/platforms/android/app/build/outputs/apk/release
+        # Генерируем постоянный Keystore
         keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "$PASS" -keypass "$PASS" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
-        jarsigner -keystore fedor.keystore -storepass "$PASS" -keypass "$PASS" app-release-unsigned.apk fedorkey
-        mv app-release-unsigned.apk "$GITHUB_WORKSPACE/fedor-health-monitor.apk"
+
+        # Создаем конфигурационный файл build.json для автоподписи Cordova
+        cat <<EOF > build.json
+        {
+          "android": {
+            "release": {
+              "keystore": "fedor.keystore",
+              "storePassword": "$PASS",
+              "alias": "fedorkey",
+              "keyPassword": "$PASS",
+              "keystoreType": ""
+            }
+          }
+        }
+        EOF
+
+        cordova platform add android
+        cordova build android --release --buildConfig=build.json
+
+        # Копируем готовый подписанный APK в корень
+        APK_PATH=$(find platforms/android/app/build/outputs/apk/release/ -name "*.apk" | head -n 1)
+        cp "$APK_PATH" "$GITHUB_WORKSPACE/fedor-health-monitor.apk"
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
