@@ -35,26 +35,11 @@ jobs:
         cordova platform add android
         cordova build android --release
 
-    - name: Generate Keystore
-      run: |
-        keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEYSTORE_PASSWORD }}" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
-        mv fedor.keystore myApp/platforms/android/app/build/outputs/apk/release/
-
-    - name: Sign Android Release APK
-      uses: r3bl-org/sign-android-release@v1
-      with:
-        releaseDirectory: myApp/platforms/android/app/build/outputs/apk/release
-        signingKeyBase64: ''
-        alias: fedorkey
-        keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-        keyPassword: ${{ secrets.KEYSTORE_PASSWORD }}
-      env:
-        BUILD_TOOLS_VERSION: "33.0.0"
-
-    - name: Rename Signed APK
+    - name: Sign APK with apksigner
       run: |
         cd myApp/platforms/android/app/build/outputs/apk/release
-        mv app-release-signed.apk fedor-health-monitor.apk || mv app-release.apk fedor-health-monitor.apk
+        keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEYSTORE_PASSWORD }}" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
+        $ANDROID_HOME/build-tools/33.0.2/apksigner sign --ks fedor.keystore --ks-pass pass:"${{ secrets.KEYSTORE_PASSWORD }}" --ks-key-alias fedorkey --key-pass pass:"${{ secrets.KEYSTORE_PASSWORD }}" --out fedor-health-monitor.apk app-release-unsigned.apk
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
