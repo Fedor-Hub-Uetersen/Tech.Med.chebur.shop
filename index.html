@@ -430,73 +430,265 @@
                     notificationSent = false;
                 } else {
                     ovEl.classList.add('active');
-                    rEl.innerText = format(timeLeft);
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech.Med.chebur.shop</title>
+    <style>
+        :root { 
+            --bg: #0a0a0c; 
+            --card: #121216; 
+            --text: #ffffff; 
+            --accent: #ff5500; 
+            --med-color: #00ffff; 
+            --music: #00ff66;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 10px;
+        }
+
+        .container { 
+            position: relative;
+            text-align: center; 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 20px; 
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 25px rgba(255, 85, 0, 0.2); 
+            width: 90%;
+            max-width: 360px; 
+        }
+
+        .lang-switcher {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            display: flex;
+            gap: 5px;
+        }
+        .lang-btn {
+            background: #1a1a24; border: 1px solid #444; color: #8a8a93;
+            padding: 3px 8px; font-size: 11px; border-radius: 5px;
+            cursor: pointer; font-weight: bold;
+        }
+        .lang-btn.active {
+            border-color: var(--med-color); color: #fff; background: #008899;
+        }
+
+        .streak-counter {
+            position: absolute;
+            top: 15px; right: 15px; font-size: 11px; font-weight: bold;
+            color: var(--music); text-transform: uppercase;
+        }
+
+        .logo-title {
+            font-size: 14px; font-weight: bold; color: #fff;
+            border: 1px dashed rgba(255, 85, 0, 0.4);
+            padding: 5px 10px; border-radius: 8px; margin-top: 25px;
+            display: inline-block;
+        }
+
+        h1 { font-size: 18px; color: #fff; margin: 15px 0 5px 0; text-transform: uppercase; }
+        .status { font-size: 11px; color: #8a8a93; text-transform: uppercase; }
+        .timer { font-size: 44px; font-weight: bold; margin: 5px 0; color: var(--med-color); text-shadow: 0 0 10px var(--med-color); }
+        
+        .promo-container {
+            margin: 10px 0; width: 100%; border-radius: 12px; border: 2px solid var(--accent);
+            overflow: hidden; background: #000; aspect-ratio: 16 / 9;
+        }
+        .promo-container video { width: 100%; height: 100%; object-fit: cover; }
+
+        .med-schedule { margin: 15px 0; padding: 0; list-style: none; text-align: left; font-size: 12px; color: #bbb; }
+        .med-schedule li { padding: 6px 0; border-bottom: 1px solid #1a1a24; display: flex; justify-content: space-between; }
+        .med-schedule li.next-med { color: var(--med-color); font-weight: bold; }
+
+        .sound-selector { margin: 10px 0; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .sound-selector label { font-size: 10px; color: #8a8a93; text-transform: uppercase; }
+        .sound-selector select {
+            background: #1a1a24; color: #fff; border: 1px solid var(--accent);
+            padding: 5px 10px; border-radius: 8px; font-size: 12px;
+        }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(6, 6, 8, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .overlay.active { opacity: 1; pointer-events: auto; }
+        .med-alert-title { font-size: 28px; color: #fff; margin-bottom: 10px; }
+        .med-instruction { font-size: 18px; color: #ffaa66; margin-bottom: 20px; font-weight: bold; }
+        .btn { background: transparent; color: #fff; border: 2px solid var(--med-color); padding: 12px 30px; font-size: 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+
+        .footer-credits { margin-top: 15px; font-size: 10px; color: #8a8a93; }
+        .footer-credits a { color: var(--accent); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="lang-switcher">
+            <button class="lang-btn active" id="lang-ru">РУ</button>
+            <button class="lang-btn" id="lang-de">ДЕ</button>
+        </div>
+
+        <div class="streak-counter" id="streak-display">БИОЛОГИЧЕСКИЙ РЕЙТИНГ: 0</div>
+
+        <div class="logo-title">TECH.MED.CHEBUR.SHOP</div>
+
+        <h1 id="main-title">МОНИТОР ЗДОРОВЬЯ</h1>
+        <div class="status" id="status-text">СЛЕДУЮЩИЙ ПРИЁМ ЧЕРЕЗ:</div>
+        <div class="timer" id="countdown-timer">--:--:--</div>
+        
+        <div class="promo-container">
+            <video id="promo-player" autoplay loop muted playsinline controls preload="auto">
+                <source src="promo.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <ul class="med-schedule" id="schedule-list"></ul>
+
+        <div class="sound-selector">
+            <label for="alarm-sound-select" id="sound-label">🔔 СИГНАЛ ТРЕВОГИ:</label>
+            <select id="alarm-sound-select">
+                <option value="gong.mp3" id="opt-gong">Космический гонг</option>
+                <option value="digital.mp3" id="opt-dig">Цифровой сигнал</option>
+                <option value="bowl.mp3" id="opt-bowl" selected>Тибетская чаша</option>
+            </select>
+        </div>
+
+        <div class="footer-credits">
+            © TM.<a href="https://tech.chebur.shop" target="_blank">TECH.CHEBUR.SHOP</a>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="med-alert-title" id="alert-title">ВРЕМЯ ПРИЁМА! 💊</div>
+        <div class="med-instruction" id="alert-instruction">Пора принять лекарства</div>
+        <button class="btn" id="confirm-btn">ПРИНЯЛ 👍</button>
+    </div>
+
+    <script>
+        const medSchedule = [
+            { id: "breakfast", hours: 8, minutes: 30, labelRu: "Завтрак: Приём инсулина", labelDe: "Frühstück: Insulin" },
+            { id: "lunch", hours: 12, minutes: 30, labelRu: "Обед: Приём инсулина", labelDe: "Mittagessen: Insulin" },
+            { id: "dinner", hours: 17, minutes: 30, labelRu: "Ужин: Приём инсулина", labelDe: "Abendessen: Insulin" },
+            { id: "tresiba", hours: 19, minutes: 0, labelRu: "База: Тресиба, 16 единиц", labelDe: "Basis: Tresiba, 16 Einheiten" }
+        ];
+
+        let currentLang = localStorage.getItem('med_lang') || 'ru';
+        let activeAlarmEvent = null;
+        let audioCtx = null;
+        
+        const countdownEl = document.getElementById('countdown-timer');
+        const ovEl = document.getElementById('overlay');
+        const confirmBtn = document.getElementById('confirm-btn');
+        const scheduleListEl = document.getElementById('schedule-list');
+
+        // Встроенный генератор звука для Android APK (работает 100% без внешних файлов)
+        function playBeepSound() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Тон D5 (Чаша)
+                gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 2.5);
+            } catch(e) { console.log(e); }
+        }
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('med_lang', lang);
+            document.getElementById('lang-ru').classList.toggle('active', lang === 'ru');
+            document.getElementById('lang-de').classList.toggle('active', lang === 'de');
+            renderSchedule();
+        }
+
+        function getNextTargetEvent() {
+            const now = new Date();
+            let nextEvent = null;
+            let minDiff = Infinity;
+
+            medSchedule.forEach(e => {
+                let target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), e.hours, e.minutes, 0, 0);
+                if (target <= now) {
+                    target.setDate(target.getDate() + 1);
                 }
+                let diff = target - now;
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    nextEvent = { event: e, dateTime: target, diff: diff };
+                }
+            });
+
+            return nextEvent;
+        }
+
+        function renderSchedule() {
+            scheduleListEl.innerHTML = "";
+            const nextData = getNextTargetEvent();
+            
+            medSchedule.forEach(e => {
+                const li = document.createElement('li');
+                const timeStr = `${e.hours.toString().padStart(2, '0')}:${e.minutes.toString().padStart(2, '0')}`;
+                const label = currentLang === 'ru' ? e.labelRu : e.labelDe;
+                li.innerHTML = `<span>${timeStr}</span> <span>${label}</span>`;
+                if (nextData && nextData.event && nextData.event.id === e.id) {
+                    li.classList.add('next-med');
+                }
+                scheduleListEl.appendChild(li);
+            });
+        }
+
+        function updateTimer() {
+            if (activeAlarmEvent) return;
+
+            const nextData = getNextTargetEvent();
+            if (!nextData) return;
+
+            const diff = nextData.diff;
+            if (diff <= 1000) {
+                triggerAlarm(nextData.event);
+            } else {
+                const hours = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                const minutes = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                const seconds = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                countdownEl.innerText = `${hours}:${minutes}:${seconds}`;
             }
         }
 
-        function startWorkMode() {
-            const now = Math.floor(Date.now() / 1000);
-            localStorage.setItem('chebu_mode', 'work');
-            localStorage.setItem('chebu_endTime', now + WORK_DURATION);
-            ovEl.classList.remove('active');
-            
-            musicAudio.pause();
-            musicAudio.currentTime = 0;
-            alarmAudio.pause();
-            alarmAudio.currentTime = 0;
-            videoPlayer.pause();
-            videoPlayer.currentTime = 0;
-            
-            wEl.innerText = format(WORK_DURATION);
-            notificationSent = false;
-            applyLanguage(currentLang);
+        function triggerAlarm(event) {
+            activeAlarmEvent = event;
+            ovEl.classList.add('active');
+            countdownEl.innerText = "00:00:00";
+            document.getElementById('alert-instruction').innerText = currentLang === 'ru' ? event.labelRu : event.labelDe;
+            playBeepSound();
         }
+
+        confirmBtn.addEventListener('click', () => {
+            ovEl.classList.remove('active');
+            activeAlarmEvent = null;
+            renderSchedule();
+        });
 
         document.getElementById('lang-ru').addEventListener('click', () => applyLanguage('ru'));
         document.getElementById('lang-de').addEventListener('click', () => applyLanguage('de'));
 
-        daySelect.addEventListener('change', () => {
-            localStorage.setItem('chebu_weekday', daySelect.value);
-            const currentWeekday = new Date().getDay();
-            if (daySelect.value === "all" || parseInt(daySelect.value) === currentWeekday) {
-                startWorkMode();
-            }
-            updateTimer();
-        });
-
-        soundSelect.addEventListener('change', () => {
-            alarmAudio.src = soundSelect.value;
-            alarmAudio.load();
-            alarmAudio.play().catch(e => console.log("Нужен клик"));
-            setTimeout(() => { alarmAudio.pause(); alarmAudio.currentTime = 0; }, 2000);
-        });
-
-        function tick() {
-            updateTimer();
-            setTimeout(tick, 1000);
-        }
-        tick();
-
         applyLanguage(currentLang);
-
-        musicBtn.addEventListener('click', () => {
-            if (musicAudio.paused) {
-                musicAudio.play()
-                    .then(() => { musicBtn.innerHTML = i18n[currentLang].btnMusicOff; })
-                    .catch(e => console.log("Звук заблокирован"));
-            } else {
-                musicAudio.pause();
-                musicBtn.innerHTML = i18n[currentLang].btnMusicOn;
-            }
-        });
-
-        document.getElementById('s-btn').addEventListener('click', () => {
-            if (localStorage.getItem('chebu_mode') === 'rest') {
-                incrementStreak();
-            }
-            startWorkMode();
-        });
+        setInterval(updateTimer, 1000);
+        updateTimer();
     </script>
 </body>
 </html>
