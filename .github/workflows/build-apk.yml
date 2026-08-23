@@ -35,12 +35,26 @@ jobs:
         cordova platform add android
         cordova build android --release
 
-    - name: Sign APK with Keystore
+    - name: Generate Keystore
+      run: |
+        keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEYSTORE_PASSWORD }}" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
+        mv fedor.keystore myApp/platforms/android/app/build/outputs/apk/release/
+
+    - name: Sign Android Release APK
+      uses: r3bl-org/sign-android-release@v1
+      with:
+        releaseDirectory: myApp/platforms/android/app/build/outputs/apk/release
+        signingKeyBase64: ''
+        alias: fedorkey
+        keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.KEYSTORE_PASSWORD }}
+      env:
+        BUILD_TOOLS_VERSION: "33.0.0"
+
+    - name: Rename Signed APK
       run: |
         cd myApp/platforms/android/app/build/outputs/apk/release
-        keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEYSTORE_PASSWORD }}" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
-        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore fedor.keystore -storepass "${{ secrets.KEYSTORE_PASSWORD }}" app-release-unsigned.apk fedorkey
-        $ANDROID_HOME/build-tools/33.0.2/zipalign -v 4 app-release-unsigned.apk fedor-health-monitor.apk
+        mv app-release-signed.apk fedor-health-monitor.apk || mv app-release.apk fedor-health-monitor.apk
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
