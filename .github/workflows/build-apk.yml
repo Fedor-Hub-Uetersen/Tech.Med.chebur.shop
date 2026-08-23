@@ -28,25 +28,23 @@ jobs:
       run: npm install -g cordova
 
     - name: Setup Cordova App and Sign
-      env:
-        PASS: ${{ secrets.KEYSTORE_PASSWORD }}
       run: |
         cordova create myApp com.fedor.healthmonitor "HealthMonitor"
         cp index.html myApp/www/
         cd myApp
 
-        # Генерируем постоянный Keystore
-        keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "$PASS" -keypass "$PASS" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
+        # Генерация ключа с фиксированным паролем без спецсимволов
+        keytool -genkey -v -keystore fedor.keystore -alias fedorkey -keyalg RSA -keysize 2048 -validity 10000 -storepass "FedorKey123456" -keypass "FedorKey123456" -dname "CN=Fedor, OU=Health, O=CheburShop, L=Uetersen, C=DE"
 
-        # Создаем конфигурационный файл build.json для автоподписи Cordova
+        # Создание файла build.json
         cat <<EOF > build.json
         {
           "android": {
             "release": {
               "keystore": "fedor.keystore",
-              "storePassword": "$PASS",
+              "storePassword": "FedorKey123456",
               "alias": "fedorkey",
-              "keyPassword": "$PASS",
+              "keyPassword": "FedorKey123456",
               "keystoreType": ""
             }
           }
@@ -56,7 +54,7 @@ jobs:
         cordova platform add android
         cordova build android --release --buildConfig=build.json
 
-        # Копируем готовый подписанный APK в корень
+        # Поиск и копирование подписанного APK
         APK_PATH=$(find platforms/android/app/build/outputs/apk/release/ -name "*.apk" | head -n 1)
         cp "$APK_PATH" "$GITHUB_WORKSPACE/fedor-health-monitor.apk"
 
