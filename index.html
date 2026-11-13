@@ -274,20 +274,6 @@
             Notification.requestPermission();
         }
 
-        // Функция голосового синтеза (Web Speech API)
-        function speakVoice(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = (currentLang === 'de') ? 'de-DE' : 'ru-RU';
-                utterance.rate = 0.95; // Чуть спокойнее и разборчивее
-                utterance.pitch = 1.0;
-
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
         function saveSchedule() {
             localStorage.setItem('user_med_schedule', JSON.stringify(medSchedule));
         }
@@ -417,7 +403,7 @@
             const eventLabel = currentLang === 'ru' ? (event.labelRu || event.label) : (event.labelDe || event.labelRu || event.label);
             document.getElementById('alert-instruction').innerText = eventLabel;
             
-            // Функция воспроизведения звука и голоса
+            // Функция воспроизведения звука и стабильного повтора голоса с принудительным сбросом
             const playAlertSequence = () => {
                 alarmAudio.src = soundSelect.value;
                 alarmAudio.play().catch(e => console.log("Ждем клика по экрану для звука"));
@@ -426,13 +412,20 @@
                     ? `Внимание! Время приема: ${eventLabel}. Назначено на ${event.time}` 
                     : `Achtung! Zeit für Medikamente: ${eventLabel}. Geplant um ${event.time}`;
                 
-                speakVoice(speechText);
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(speechText);
+                    utterance.lang = (currentLang === 'de') ? 'de-DE' : 'ru-RU';
+                    utterance.rate = 0.95;
+                    utterance.pitch = 1.0;
+                    window.speechSynthesis.speak(utterance);
+                }
             };
 
             // Срабатывает сразу при первом вызове
             playAlertSequence();
 
-            // ПОВТОР каждые 30 секунд (30000 мс), пока не будет нажата кнопка подтверждения
+            // ПОВТОР каждые 30 секунд (30000 мс) со сбросом очереди речи
             if (!reminderRepeatInterval) {
                 reminderRepeatInterval = setInterval(() => {
                     if (activeAlarmEvent) {
