@@ -260,6 +260,7 @@
         let currentLang = localStorage.getItem('med_lang') || 'ru';
         let timerInterval = null;
         let activeAlarmEvent = null;
+        let reminderRepeatInterval = null; // Переменная для интервального повтора
         
         const countdownEl = document.getElementById('countdown-timer');
         const ovEl = document.getElementById('overlay');
@@ -276,7 +277,6 @@
         // Функция голосового синтеза (Web Speech API)
         function speakVoice(text) {
             if ('speechSynthesis' in window) {
-                // Останавливаем предыдущую речь, если она еще идет
                 window.speechSynthesis.cancel();
 
                 const utterance = new SpeechSynthesisUtterance(text);
@@ -417,16 +417,32 @@
             const eventLabel = currentLang === 'ru' ? (event.labelRu || event.label) : (event.labelDe || event.labelRu || event.label);
             document.getElementById('alert-instruction').innerText = eventLabel;
             
-            // Проигрываем звуковой сигнал
-            alarmAudio.src = soundSelect.value;
-            alarmAudio.play().catch(e => console.log("Ждем клика по экрану для звука"));
+            // Функция воспроизведения звука и голоса
+            const playAlertSequence = () => {
+                alarmAudio.src = soundSelect.value;
+                alarmAudio.play().catch(e => console.log("Ждем клика по экрану для звука"));
 
-            // ПРОИЗНОСИМ ГОЛОСОМ НАПОМИНАНИЕ
-            const speechText = (currentLang === 'ru') 
-                ? `Внимание! Время приема: ${eventLabel}. Назначено на ${event.time}` 
-                : `Achtung! Zeit für Medikamente: ${eventLabel}. Geplant um ${event.time}`;
-            
-            speakVoice(speechText);
+                const speechText = (currentLang === 'ru') 
+                    ? `Внимание! Время приема: ${eventLabel}. Назначено на ${event.time}` 
+                    : `Achtung! Zeit für Medikamente: ${eventLabel}. Geplant um ${event.time}`;
+                
+                speakVoice(speechText);
+            };
+
+            // Срабатывает сразу при первом вызове
+            playAlertSequence();
+
+            // ПОВТОР каждые 3 минуты (180000 мс), пока не будет нажата кнопка подтверждения
+            if (!reminderRepeatInterval) {
+                reminderRepeatInterval = setInterval(() => {
+                    if (activeAlarmEvent) {
+                        playAlertSequence();
+                    } else {
+                        clearInterval(reminderRepeatInterval);
+                        reminderRepeatInterval = null;
+                    }
+                }, 180000);
+            }
 
             if (Notification.permission === "granted") {
                 new Notification(i18n[currentLang].notifTitle, { body: eventLabel });
@@ -448,9 +464,14 @@
             alarmAudio.pause();
             alarmAudio.currentTime = 0;
             
-            // Останавливаем голос, если кнопка нажата
+            // Останавливаем голос и сбрасываем интервал повтора
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
+            }
+
+            if (reminderRepeatInterval) {
+                clearInterval(reminderRepeatInterval);
+                reminderRepeatInterval = null;
             }
 
             activeAlarmEvent = null;
