@@ -273,6 +273,21 @@
             Notification.requestPermission();
         }
 
+        // Функция голосового синтеза (Web Speech API)
+        function speakVoice(text) {
+            if ('speechSynthesis' in window) {
+                // Останавливаем предыдущую речь, если она еще идет
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = (currentLang === 'de') ? 'de-DE' : 'ru-RU';
+                utterance.rate = 0.95; // Чуть спокойнее и разборчивее
+                utterance.pitch = 1.0;
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
         function saveSchedule() {
             localStorage.setItem('user_med_schedule', JSON.stringify(medSchedule));
         }
@@ -401,8 +416,17 @@
             
             const eventLabel = currentLang === 'ru' ? (event.labelRu || event.label) : (event.labelDe || event.labelRu || event.label);
             document.getElementById('alert-instruction').innerText = eventLabel;
+            
+            // Проигрываем звуковой сигнал
             alarmAudio.src = soundSelect.value;
             alarmAudio.play().catch(e => console.log("Ждем клика по экрану для звука"));
+
+            // ПРОИЗНОСИМ ГОЛОСОМ НАПОМИНАНИЕ
+            const speechText = (currentLang === 'ru') 
+                ? `Внимание! Время приема: ${eventLabel}. Назначено на ${event.time}` 
+                : `Achtung! Zeit für Medikamente: ${eventLabel}. Geplant um ${event.time}`;
+            
+            speakVoice(speechText);
 
             if (Notification.permission === "granted") {
                 new Notification(i18n[currentLang].notifTitle, { body: eventLabel });
@@ -423,6 +447,12 @@
             ovEl.classList.remove('active');
             alarmAudio.pause();
             alarmAudio.currentTime = 0;
+            
+            // Останавливаем голос, если кнопка нажата
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+
             activeAlarmEvent = null;
 
             let currentStreak = parseInt(localStorage.getItem('med_streak')) || 0;
@@ -434,6 +464,7 @@
 
         document.getElementById('lang-ru').addEventListener('click', () => applyLanguage('ru'));
         document.getElementById('lang-de').addEventListener('click', () => applyLanguage('de'));
+        
         soundSelect.addEventListener('change', () => {
             alarmAudio.src = soundSelect.value;
             alarmAudio.play().catch(e => console.log("Тест звука"));
