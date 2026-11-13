@@ -432,7 +432,7 @@
             // Срабатывает сразу при первом вызове
             playAlertSequence();
 
-            // ПОВТОР каждые 3 минуты (180000 мс), пока не будет нажата кнопка подтверждения
+            // ПОВТОР каждые 30 секунд (30000 мс), пока не будет нажата кнопка подтверждения
             if (!reminderRepeatInterval) {
                 reminderRepeatInterval = setInterval(() => {
                     if (activeAlarmEvent) {
@@ -441,7 +441,7 @@
                         clearInterval(reminderRepeatInterval);
                         reminderRepeatInterval = null;
                     }
-                }, 180000);
+                }, 30000);
             }
 
             if (Notification.permission === "granted") {
