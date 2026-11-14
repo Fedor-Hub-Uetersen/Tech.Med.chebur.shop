@@ -154,7 +154,7 @@
             padding: 7px 12px; border-radius: 10px; font-size: 13px; cursor: pointer; outline: none;
         }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(6, 6, 8, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(6, 6, 8, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2147483647; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
         .overlay.active { opacity: 1; pointer-events: auto; }
         .content { text-align: center; max-width: 500px; width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         
@@ -260,7 +260,7 @@
         let currentLang = localStorage.getItem('med_lang') || 'ru';
         let timerInterval = null;
         let activeAlarmEvent = null;
-        let reminderRepeatInterval = null; // Переменная для интервального повтора
+        let reminderRepeatInterval = null;
         
         const countdownEl = document.getElementById('countdown-timer');
         const ovEl = document.getElementById('overlay');
@@ -403,7 +403,7 @@
             const eventLabel = currentLang === 'ru' ? (event.labelRu || event.label) : (event.labelDe || event.labelRu || event.label);
             document.getElementById('alert-instruction').innerText = eventLabel;
             
-            // Функция воспроизведения звука и стабильного повтора голоса с принудительным сбросом
+            // Функция воспроизведения звука и стабильного повтора голоса с принудительным сбросом очереди
             const playAlertSequence = () => {
                 alarmAudio.src = soundSelect.value;
                 alarmAudio.play().catch(e => console.log("Ждем клика по экрану для звука"));
@@ -438,7 +438,11 @@
             }
 
             if (Notification.permission === "granted") {
-                new Notification(i18n[currentLang].notifTitle, { body: eventLabel });
+                new Notification(i18n[currentLang].notifTitle, { 
+                    body: eventLabel,
+                    tag: "med-alarm",
+                    requireInteraction: true 
+                });
             }
         }
 
