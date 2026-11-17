@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,7 +55,7 @@
             background: var(--card); 
             padding: 25px 18px; 
             border-radius: 20px; 
-            border: 2px solid var(--accent);
+            border: 2px solid var(--accent); 
             box-shadow: 0 0 25px rgba(255, 85, 0, 0.2), inset 0 0 15px rgba(255, 85, 0, 0.1); 
             width: 100%;
             max-width: 400px; 
@@ -67,11 +67,11 @@
             top: 15px;
             left: 16px;
             display: flex;
-            gap: 6px;
+            gap: 5px;
         }
         .lang-btn {
             background: #1a1a24; border: 1px solid #444; color: #8a8a93;
-            padding: 3px 8px; font-size: 11px; border-radius: 5px;
+            padding: 3px 7px; font-size: 11px; border-radius: 5px;
             cursor: pointer; font-weight: bold; transition: all 0.3s;
         }
         .lang-btn.active {
@@ -98,9 +98,9 @@
             font-size: clamp(12px, 3.8vw, 16px); 
             font-weight: bold; 
             letter-spacing: 1.5px; 
-            color: #fff;
+            color: #fff; 
             text-shadow: var(--neon-glow); 
-            border: 1px dashed rgba(255, 85, 0, 0.4);
+            border: 1px dashed rgba(255, 85, 0, 0.4); 
             padding: 8px 12px; 
             border-radius: 10px; 
             text-transform: uppercase;
@@ -172,7 +172,8 @@
 
     <div class="container">
         <div class="lang-switcher">
-            <button class="lang-btn active" id="lang-ru">RU</button>
+            <button class="lang-btn active" id="lang-en">EN</button>
+            <button class="lang-btn" id="lang-ru">RU</button>
             <button class="lang-btn" id="lang-de">DE</button>
         </div>
 
@@ -182,33 +183,33 @@
             <div class="wolf-logo-placeholder">Tech.Med.chebur.shop</div>
         </div>
 
-        <h1 id="main-title">Мониторинг здоровья</h1>
-        <div class="status" id="status-text">Следующий приём через:</div>
+        <h1 id="main-title">Health Monitoring</h1>
+        <div class="status" id="status-text">Next dose in:</div>
         <div class="timer" id="countdown-timer">00:00:00</div>
         
-        <!-- УНИВЕРСАЛЬНЫЙ РЕКЛАМНЫЙ ПЛЕЕР -->
+        <!-- UNIVERSAL PROMO PLAYER -->
         <div class="promo-video-container">
             <video id="promo-player" autoplay loop playsinline controls preload="auto">
                 <source src="promo.mp4" type="video/mp4">
-                Ваш браузер не поддерживает видео.
+                Your browser does not support the video tag.
             </video>
         </div>
 
         <ul class="med-schedule" id="schedule-list"></ul>
 
-        <!-- ФОРМА ДОБАВЛЕНИЯ ПРИЁМА ПОЛЬЗОВАТЕЛЕМ -->
+        <!-- USER SCHEDULE EDITOR FORM -->
         <div class="schedule-editor">
             <input type="time" id="new-med-time">
-            <input type="text" id="new-med-label" placeholder="Название препарата / Время">
-            <button id="add-med-btn">Добавить приём ➕</button>
+            <input type="text" id="new-med-label" placeholder="Medication name / Meal">
+            <button id="add-med-btn">Add Dose ➕</button>
         </div>
 
         <div class="sound-selector">
-            <label for="alarm-sound-select" id="sound-label">🔔 Сигнал оповещения:</label>
+            <label for="alarm-sound-select" id="sound-label">🔔 Alert Sound:</label>
             <select id="alarm-sound-select">
-                <option value="gong.mp3" id="opt-gong" selected>Космический гонг</option>
-                <option value="digital.mp3" id="opt-dig">Цифровой сигнал</option>
-                <option value="bowl.mp3" id="opt-bowl">Тибетская чаша</option>
+                <option value="gong.mp3" id="opt-gong" selected>Cosmic Gong</option>
+                <option value="digital.mp3" id="opt-dig">Digital Signal</option>
+                <option value="bowl.mp3" id="opt-bowl">Tibetan Bowl</option>
             </select>
         </div>
 
@@ -219,9 +220,9 @@
 
     <div class="overlay" id="overlay">
         <div class="content">
-            <div class="med-alert-title" id="alert-title">Время приёма! 💊</div>
-            <div class="med-instruction" id="alert-instruction">Пора принять запланированные препараты</div>
-            <button class="btn" id="confirm-btn">Принял 👍</button>
+            <div class="med-alert-title" id="alert-title">Medication Time! 💊</div>
+            <div class="med-instruction" id="alert-instruction">Time to take your scheduled medication</div>
+            <button class="btn" id="confirm-btn">Taken 👍</button>
         </div>
     </div>
 
@@ -232,32 +233,69 @@
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
         }
 
-        // Загружаем расписание из памяти или берем дефолтные
+        // Load schedule from local storage or use default items
         let medSchedule = JSON.parse(localStorage.getItem('user_med_schedule')) || [
-            { id: "breakfast", time: "08:30", labelRu: "Завтрак: Лекарства инсулин", labelDe: "Frühstück: Medikamente insulin" },
-            { id: "lunch", time: "12:30", labelRu: "Обед: Лекарства инсулин", labelDe: "Mittagessen: Medikamente insulin" },
-            { id: "dinner", time: "17:00", labelRu: "Ужин: Лекарства инсулин", labelDe: "Abendessen: Medikamente insulin" },
-            { id: "tresiba", time: "22:00", labelRu: "База: Тресиба", labelDe: "Basis: Tresiba" }
+            { id: "breakfast", time: "08:30", labelEn: "Breakfast: Medication & Insulin", labelRu: "Завтрак: Лекарства инсулин", labelDe: "Frühstück: Medikamente Insulin" },
+            { id: "lunch", time: "12:30", labelEn: "Lunch: Medication & Insulin", labelRu: "Обед: Лекарства инсулин", labelDe: "Mittagessen: Medikamente Insulin" },
+            { id: "dinner", time: "17:00", labelEn: "Dinner: Medication & Insulin", labelRu: "Ужин: Лекарства инсулин", labelDe: "Abendessen: Medikamente Insulin" },
+            { id: "tresiba", time: "22:00", labelEn: "Basal: Tresiba", labelRu: "База: Тресиба", labelDe: "Basis: Tresiba" }
         ];
 
         const i18n = {
+            en: {
+                mainTitle: "Health Monitoring",
+                statusText: "Next dose in:",
+                inputPlaceholder: "Medication name / Meal",
+                addBtn: "Add Dose ➕",
+                removeTitle: "Remove",
+                validationAlert: "Please enter both time and medication name!",
+                soundLabel: "🔔 Alert Sound:",
+                optDig: "Digital Signal",
+                optGong: "Cosmic Gong",
+                optBowl: "Tibetan Bowl",
+                alertTitle: "Medication Time! 💊",
+                alertDefault: "Time to take your scheduled medication",
+                btnConfirm: "Taken 👍",
+                notifTitle: "BioWolf Med",
+                notifBody: "Friend, it is time to take your medication!"
+            },
             ru: {
-                mainTitle: "Мониторинг здоровья", statusText: "Следующий приём через:",
-                soundLabel: "🔔 Сигнал оповещения:", optDig: "Цифровой сигнал",
-                optGong: "Космический гонг", optBowl: "Тибетская чаша",
-                alertTitle: "Время приёма! 💊", btnConfirm: "Принял 👍",
-                notifTitle: "BioWolf Med", notifBody: "Друг, пора принять лекарства!"
+                mainTitle: "Мониторинг здоровья",
+                statusText: "Следующий приём через:",
+                inputPlaceholder: "Название препарата / Время",
+                addBtn: "Добавить приём ➕",
+                removeTitle: "Удалить",
+                validationAlert: "Укажите время и название препарата!",
+                soundLabel: "🔔 Сигнал оповещения:",
+                optDig: "Цифровой сигнал",
+                optGong: "Космический гонг",
+                optBowl: "Тибетская чаша",
+                alertTitle: "Время приёма! 💊",
+                alertDefault: "Пора принять запланированные препараты",
+                btnConfirm: "Принял 👍",
+                notifTitle: "BioWolf Med",
+                notifBody: "Друг, пора принять лекарства!"
             },
             de: {
-                mainTitle: "Gesundheitsmonitor", statusText: "Nächste Einnahme in:",
-                soundLabel: "🔔 Alarmsignal:", optDig: "Digitaler Alarm",
-                optGong: "Weltraum-Gong", optBowl: "Tibetische Schale",
-                alertTitle: "Zeit für Medikamente! 💊", btnConfirm: "Bestätigen 👍",
-                notifTitle: "BioWolf Med", notifBody: "Friend, es ist Zeit für Ihre Medikamente!"
+                mainTitle: "Gesundheitsmonitor",
+                statusText: "Nächste Einnahme in:",
+                inputPlaceholder: "Medikament / Mahlzeit",
+                addBtn: "Einnahme hinzufügen ➕",
+                removeTitle: "Entfernen",
+                validationAlert: "Bitte Uhrzeit und Medikament angeben!",
+                soundLabel: "🔔 Alarmsignal:",
+                optDig: "Digitaler Alarm",
+                optGong: "Weltraum-Gong",
+                optBowl: "Tibetische Schale",
+                alertTitle: "Zeit für Medikamente! 💊",
+                alertDefault: "Zeit, Ihre geplanten Medikamente einzunehmen",
+                btnConfirm: "Bestätigen 👍",
+                notifTitle: "BioWolf Med",
+                notifBody: "Freund, es ist Zeit für Ihre Medikamente!"
             }
         };
 
-        let currentLang = localStorage.getItem('med_lang') || 'ru';
+        let currentLang = localStorage.getItem('med_lang') || 'en';
         let timerInterval = null;
         let activeAlarmEvent = null;
         let reminderRepeatInterval = null;
@@ -278,21 +316,32 @@
             localStorage.setItem('user_med_schedule', JSON.stringify(medSchedule));
         }
 
+        function getLocalizedLabel(event) {
+            if (currentLang === 'en') return event.labelEn || event.labelRu || event.label;
+            if (currentLang === 'de') return event.labelDe || event.labelEn || event.labelRu || event.label;
+            return event.labelRu || event.labelEn || event.label;
+        }
+
         function applyLanguage(lang) {
+            if (!i18n[lang]) lang = 'en';
             currentLang = lang;
             localStorage.setItem('med_lang', lang);
             document.documentElement.lang = lang;
 
+            document.getElementById('lang-en').classList.toggle('active', lang === 'en');
             document.getElementById('lang-ru').classList.toggle('active', lang === 'ru');
             document.getElementById('lang-de').classList.toggle('active', lang === 'de');
 
             document.getElementById('main-title').innerText = i18n[lang].mainTitle;
             document.getElementById('status-text').innerText = i18n[lang].statusText;
+            document.getElementById('new-med-label').placeholder = i18n[lang].inputPlaceholder;
+            document.getElementById('add-med-btn').innerText = i18n[lang].addBtn;
             document.getElementById('sound-label').innerText = i18n[lang].soundLabel;
             document.getElementById('opt-dig').innerText = i18n[lang].optDig;
             document.getElementById('opt-gong').innerText = i18n[lang].optGong;
             document.getElementById('opt-bowl').innerText = i18n[lang].optBowl;
             document.getElementById('alert-title').innerText = i18n[lang].alertTitle;
+            document.getElementById('alert-instruction').innerText = i18n[lang].alertDefault;
             confirmBtn.innerText = i18n[lang].btnConfirm;
 
             updateStreakDisplay();
@@ -306,8 +355,8 @@
             
             medSchedule.forEach((event, index) => {
                 const li = document.createElement('li');
-                const label = currentLang === 'ru' ? (event.labelRu || event.label) : (event.labelDe || event.labelRu || event.label);
-                li.innerHTML = `<span>${event.time}</span> <span style="flex-grow: 1; margin: 0 8px; text-align: left; word-break: break-word;">${label}</span> <button onclick="removeMed(${index})" style="background: none; border: none; color: #ff5500; cursor: pointer; font-size: 14px; flex-shrink: 0;" title="Удалить">❌</button>`;
+                const label = getLocalizedLabel(event);
+                li.innerHTML = `<span>${event.time}</span> <span style="flex-grow: 1; margin: 0 8px; text-align: left; word-break: break-word;">${label}</span> <button onclick="removeMed(${index})" style="background: none; border: none; color: #ff5500; cursor: pointer; font-size: 14px; flex-shrink: 0;" title="${i18n[currentLang].removeTitle}">❌</button>`;
                 
                 if (nextEvent && nextEvent.id === event.id) {
                     li.classList.add('next-med');
@@ -327,13 +376,14 @@
             const labelVal = document.getElementById('new-med-label').value.trim();
 
             if (!timeVal || !labelVal) {
-                alert(currentLang === 'ru' ? "Укажите время и название препарата!" : "Bitte Uhrzeit und Medikament angeben!");
+                alert(i18n[currentLang].validationAlert);
                 return;
             }
 
             const newEvent = {
                 id: "med_" + Date.now(),
                 time: timeVal,
+                labelEn: labelVal,
                 labelRu: labelVal,
                 labelDe: labelVal
             };
@@ -400,32 +450,39 @@
             ovEl.classList.add('active');
             countdownEl.innerText = "00:00:00";
             
-            const eventLabel = currentLang === 'ru' ? (event.labelRu || event.label) : (event.labelDe || event.labelRu || event.label);
+            const eventLabel = getLocalizedLabel(event);
             document.getElementById('alert-instruction').innerText = eventLabel;
             
-            // Функция воспроизведения звука и стабильного повтора голоса с принудительным сбросом очереди
+            // Play alert audio and repeat voice announcement with queue reset
             const playAlertSequence = () => {
                 alarmAudio.src = soundSelect.value;
-                alarmAudio.play().catch(e => console.log("Ждем клика по экрану для звука"));
+                alarmAudio.play().catch(e => console.log("Waiting for user interaction to play audio"));
 
-                const speechText = (currentLang === 'ru') 
-                    ? `Внимание! Время приема: ${eventLabel}. Назначено на ${event.time}` 
-                    : `Achtung! Zeit für Medikamente: ${eventLabel}. Geplant um ${event.time}`;
+                let speechText = `Attention! Medication time: ${eventLabel}. Scheduled for ${event.time}`;
+                let speechLang = 'en-US';
+
+                if (currentLang === 'ru') {
+                    speechText = `Внимание! Время приема: ${eventLabel}. Назначено на ${event.time}`;
+                    speechLang = 'ru-RU';
+                } else if (currentLang === 'de') {
+                    speechText = `Achtung! Zeit für Medikamente: ${eventLabel}. Geplant um ${event.time}`;
+                    speechLang = 'de-DE';
+                }
                 
                 if ('speechSynthesis' in window) {
                     window.speechSynthesis.cancel();
                     const utterance = new SpeechSynthesisUtterance(speechText);
-                    utterance.lang = (currentLang === 'de') ? 'de-DE' : 'ru-RU';
+                    utterance.lang = speechLang;
                     utterance.rate = 0.95;
                     utterance.pitch = 1.0;
                     window.speechSynthesis.speak(utterance);
                 }
             };
 
-            // Срабатывает сразу при первом вызове
+            // Trigger immediately on first call
             playAlertSequence();
 
-            // ПОВТОР каждые 30 секунд (30000 мс) со сбросом очереди речи
+            // Repeat every 30 seconds (30000 ms) with speech queue reset
             if (!reminderRepeatInterval) {
                 reminderRepeatInterval = setInterval(() => {
                     if (activeAlarmEvent) {
@@ -461,7 +518,7 @@
             alarmAudio.pause();
             alarmAudio.currentTime = 0;
             
-            // Останавливаем голос и сбрасываем интервал повтора
+            // Stop voice synthesis and clear repeat interval
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
             }
@@ -480,12 +537,13 @@
             renderSchedule();
         });
 
+        document.getElementById('lang-en').addEventListener('click', () => applyLanguage('en'));
         document.getElementById('lang-ru').addEventListener('click', () => applyLanguage('ru'));
         document.getElementById('lang-de').addEventListener('click', () => applyLanguage('de'));
         
         soundSelect.addEventListener('change', () => {
             alarmAudio.src = soundSelect.value;
-            alarmAudio.play().catch(e => console.log("Тест звука"));
+            alarmAudio.play().catch(e => console.log("Audio preview"));
             setTimeout(() => { alarmAudio.pause(); alarmAudio.currentTime = 0; }, 1500);
         });
 
