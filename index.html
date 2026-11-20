@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech.Med.chebur.shop Med-Reminder — Tech.chebur.shop</title>
+    <title>Home.chebur.shop — Дом и Кухня</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BioWolf Med">
+    <meta name="apple-mobile-web-app-title" content="Home & Kitchen">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="wolf.png">
     <link rel="icon" type="image/png" href="wolf.png">
@@ -23,10 +23,10 @@
             --card: #121216; 
             --text: #ffffff; 
             --accent: #ff5500; 
-            --med-color: #00ffff; 
+            --home-color: #00ffff; 
             --music: #00ff66;  
             --neon-glow: 0 0 15px var(--accent), 0 0 30px var(--accent);
-            --neon-med: 0 0 15px var(--med-color), 0 0 25px var(--med-color);
+            --neon-home: 0 0 15px var(--home-color), 0 0 25px var(--home-color);
             --neon-footer: 0 0 6px var(--accent);
         }
         
@@ -75,7 +75,7 @@
             cursor: pointer; font-weight: bold; transition: all 0.3s;
         }
         .lang-btn.active {
-            border-color: var(--med-color); color: #fff; box-shadow: 0 0 5px var(--med-color);
+            border-color: var(--home-color); color: #fff; box-shadow: 0 0 5px var(--home-color);
         }
 
         .streak-counter {
@@ -120,19 +120,19 @@
             margin: 5px 0; 
             font-variant-numeric: tabular-nums; 
             text-shadow: 0 0 10px #fff; 
-            color: var(--med-color); 
+            color: var(--home-color); 
         }
         .status { font-size: 12px; color: #8a8a93; letter-spacing: 1px; text-transform: uppercase; }
         
-        .promo-video-container {
+        .hearth-video-container {
             margin: 15px 0; width: 100%; border-radius: 12px; border: 2px solid var(--accent);
             box-shadow: 0 0 10px rgba(255, 85, 0, 0.3); overflow: hidden; background: #000; aspect-ratio: 16 / 9;
         }
-        .promo-video-container video { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .hearth-video-container video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        .med-schedule { margin: 15px 0; padding: 0; list-style: none; text-align: left; font-size: 13px; color: #bbb; max-height: 160px; overflow-y: auto; }
-        .med-schedule li { padding: 6px 0; border-bottom: 1px solid #1a1a24; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-        .med-schedule li.next-med { color: var(--med-color); font-weight: bold; }
+        .home-schedule { margin: 15px 0; padding: 0; list-style: none; text-align: left; font-size: 13px; color: #bbb; max-height: 160px; overflow-y: auto; }
+        .home-schedule li { padding: 6px 0; border-bottom: 1px solid #1a1a24; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+        .home-schedule li.next-task { color: var(--home-color); font-weight: bold; }
 
         .schedule-editor { margin: 15px 0; display: flex; gap: 6px; flex-direction: column; width: 100%; }
         .schedule-editor input {
@@ -158,11 +158,11 @@
         .overlay.active { opacity: 1; pointer-events: auto; }
         .content { text-align: center; max-width: 500px; width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         
-        .med-alert-title { font-size: clamp(24px, 7vw, 32px); color: #fff; text-shadow: var(--neon-med); margin-bottom: 10px; text-transform: uppercase; }
-        .med-instruction { font-size: clamp(16px, 5vw, 20px); color: #ffaa66; margin-bottom: 25px; font-weight: bold; }
+        .home-alert-title { font-size: clamp(24px, 7vw, 32px); color: #fff; text-shadow: var(--neon-home); margin-bottom: 10px; text-transform: uppercase; }
+        .home-instruction { font-size: clamp(16px, 5vw, 20px); color: #ffaa66; margin-bottom: 25px; font-weight: bold; }
         
-        .btn { background: transparent; color: #fff; border: 2px solid var(--med-color); padding: 15px 35px; font-size: 16px; border-radius: 25px; cursor: pointer; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; transition: all 0.2s; box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.2); }
-        .btn:hover { background: var(--med-color); box-shadow: var(--neon-med); color: #000; transform: scale(1.05); }
+        .btn { background: transparent; color: #fff; border: 2px solid var(--home-color); padding: 15px 35px; font-size: 16px; border-radius: 25px; cursor: pointer; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; transition: all 0.2s; box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.2); }
+        .btn:hover { background: var(--home-color); box-shadow: var(--neon-home); color: #000; transform: scale(1.05); }
 
         .footer-credits { margin-top: 25px; font-size: 11px; color: #bbb; letter-spacing: 1px; text-transform: uppercase; }
         .footer-credits a { color: var(--accent); text-decoration: none; font-weight: bold; text-shadow: var(--neon-footer); }
@@ -177,31 +177,32 @@
             <button class="lang-btn" id="lang-de">DE</button>
         </div>
 
-        <div class="streak-counter" id="streak-display">Bio-Score: 0</div>
+        <div class="streak-counter" id="streak-display">Home-Score: 0</div>
 
         <div class="logo-area">
-            <div class="wolf-logo-placeholder">Tech.Med.chebur.shop</div>
+            <div class="wolf-logo-placeholder">Home.chebur.shop</div>
         </div>
 
-        <h1 id="main-title">Health Monitoring</h1>
-        <div class="status" id="status-text">Next dose in:</div>
+        <h1 id="main-title">Home & Kitchen</h1>
+        <div class="status" id="status-text">Next task in:</div>
         <div class="timer" id="countdown-timer">00:00:00</div>
         
-        <!-- UNIVERSAL PROMO PLAYER -->
-        <div class="promo-video-container">
-            <video id="promo-player" autoplay loop playsinline controls preload="auto">
+        <!-- HOME HEARTH VIDEO PLAYER -->
+        <div class="hearth-video-container">
+            <video id="hearth-player" autoplay loop playsinline controls preload="auto">
+                <source src="hearth.mp4" type="video/mp4">
                 <source src="promo.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
         </div>
 
-        <ul class="med-schedule" id="schedule-list"></ul>
+        <ul class="home-schedule" id="schedule-list"></ul>
 
         <!-- USER SCHEDULE EDITOR FORM -->
         <div class="schedule-editor">
-            <input type="time" id="new-med-time">
-            <input type="text" id="new-med-label" placeholder="Medication name / Meal">
-            <button id="add-med-btn">Add Dose ➕</button>
+            <input type="time" id="new-task-time">
+            <input type="text" id="new-task-label" placeholder="Task / Kitchen step">
+            <button id="add-task-btn">Add Task ➕</button>
         </div>
 
         <div class="sound-selector">
@@ -220,9 +221,9 @@
 
     <div class="overlay" id="overlay">
         <div class="content">
-            <div class="med-alert-title" id="alert-title">Medication Time! 💊</div>
-            <div class="med-instruction" id="alert-instruction">Time to take your scheduled medication</div>
-            <button class="btn" id="confirm-btn">Taken 👍</button>
+            <div class="home-alert-title" id="alert-title">Task Time! 🏡</div>
+            <div class="home-instruction" id="alert-instruction">Time for your scheduled home or kitchen task</div>
+            <button class="btn" id="confirm-btn">Done 👍</button>
         </div>
     </div>
 
@@ -233,69 +234,69 @@
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
         }
 
-        // Load schedule from local storage or use default items
-        let medSchedule = JSON.parse(localStorage.getItem('user_med_schedule')) || [
-            { id: "breakfast", time: "08:30", labelEn: "Breakfast: Medication & Insulin", labelRu: "Завтрак: Лекарства инсулин", labelDe: "Frühstück: Medikamente Insulin" },
-            { id: "lunch", time: "12:30", labelEn: "Lunch: Medication & Insulin", labelRu: "Обед: Лекарства инсулин", labelDe: "Mittagessen: Medikamente Insulin" },
-            { id: "dinner", time: "17:00", labelEn: "Dinner: Medication & Insulin", labelRu: "Ужин: Лекарства инсулин", labelDe: "Abendessen: Medikamente Insulin" },
-            { id: "tresiba", time: "22:00", labelEn: "Basal: Tresiba", labelRu: "База: Тресиба", labelDe: "Basis: Tresiba" }
+        // Load schedule from local storage or use default home/kitchen tasks
+        let homeSchedule = JSON.parse(localStorage.getItem('user_home_schedule')) || [
+            { id: "air_room", time: "08:30", labelEn: "Air the kitchen & room", labelRu: "Проветрить кухню и комнату", labelDe: "Küche und Zimmer lüften" },
+            { id: "prep_cook", time: "12:30", labelEn: "Check stove / kitchen prep", labelRu: "Проверить плиту / заготовки на кухне", labelDe: "Herd prüfen / Küchenvorbereitung" },
+            { id: "water_plants", time: "16:00", labelEn: "Water indoor plants", labelRu: "Полить комнатные растения", labelDe: "Zimmerpflanzen gießen" },
+            { id: "evening_tidy", time: "19:00", labelEn: "Tidy kitchen & counter", labelRu: "Убрать на кухне и протереть стол", labelDe: "Küche aufräumen und Tisch abwischen" }
         ];
 
         const i18n = {
             en: {
-                mainTitle: "Health Monitoring",
-                statusText: "Next dose in:",
-                inputPlaceholder: "Medication name / Meal",
-                addBtn: "Add Dose ➕",
+                mainTitle: "Home & Kitchen",
+                statusText: "Next task in:",
+                inputPlaceholder: "Task / Kitchen step",
+                addBtn: "Add Task ➕",
                 removeTitle: "Remove",
-                validationAlert: "Please enter both time and medication name!",
+                validationAlert: "Please enter both time and task name!",
                 soundLabel: "🔔 Alert Sound:",
                 optDig: "Digital Signal",
                 optGong: "Cosmic Gong",
                 optBowl: "Tibetan Bowl",
-                alertTitle: "Medication Time! 💊",
-                alertDefault: "Time to take your scheduled medication",
-                btnConfirm: "Taken 👍",
-                notifTitle: "BioWolf Med",
-                notifBody: "Friend, it is time to take your medication!"
+                alertTitle: "Task Time! 🏡",
+                alertDefault: "Time for your scheduled home or kitchen task",
+                btnConfirm: "Done 👍",
+                notifTitle: "Home & Kitchen",
+                notifBody: "Time for your home or kitchen task!"
             },
             ru: {
-                mainTitle: "Мониторинг здоровья",
-                statusText: "Следующий приём через:",
-                inputPlaceholder: "Название препарата / Время",
-                addBtn: "Добавить приём ➕",
+                mainTitle: "Дом и Кухня",
+                statusText: "Следующее дело через:",
+                inputPlaceholder: "Задача / Дело на кухне",
+                addBtn: "Добавить дело ➕",
                 removeTitle: "Удалить",
-                validationAlert: "Укажите время и название препарата!",
+                validationAlert: "Укажите время и название дела!",
                 soundLabel: "🔔 Сигнал оповещения:",
                 optDig: "Цифровой сигнал",
                 optGong: "Космический гонг",
                 optBowl: "Тибетская чаша",
-                alertTitle: "Время приёма! 💊",
-                alertDefault: "Пора принять запланированные препараты",
-                btnConfirm: "Принял 👍",
-                notifTitle: "BioWolf Med",
-                notifBody: "Друг, пора принять лекарства!"
+                alertTitle: "Время дела! 🏡",
+                alertDefault: "Пора выполнить запланированное дело по дому или кухне",
+                btnConfirm: "Готово 👍",
+                notifTitle: "Дом и Кухня",
+                notifBody: "Пора за дело по дому или на кухне!"
             },
             de: {
-                mainTitle: "Gesundheitsmonitor",
-                statusText: "Nächste Einnahme in:",
-                inputPlaceholder: "Medikament / Mahlzeit",
-                addBtn: "Einnahme hinzufügen ➕",
+                mainTitle: "Haus & Küche",
+                statusText: "Nächste Aufgabe in:",
+                inputPlaceholder: "Aufgabe / Küchenschritt",
+                addBtn: "Aufgabe hinzufügen ➕",
                 removeTitle: "Entfernen",
-                validationAlert: "Bitte Uhrzeit und Medikament angeben!",
+                validationAlert: "Bitte Uhrzeit und Aufgabe angeben!",
                 soundLabel: "🔔 Alarmsignal:",
                 optDig: "Digitaler Alarm",
                 optGong: "Weltraum-Gong",
                 optBowl: "Tibetische Schale",
-                alertTitle: "Zeit für Medikamente! 💊",
-                alertDefault: "Zeit, Ihre geplanten Medikamente einzunehmen",
-                btnConfirm: "Bestätigen 👍",
-                notifTitle: "BioWolf Med",
-                notifBody: "Freund, es ist Zeit für Ihre Medikamente!"
+                alertTitle: "Aufgabenzeit! 🏡",
+                alertDefault: "Zeit für Ihre geplante Aufgabe in Haus oder Küche",
+                btnConfirm: "Erledigt 👍",
+                notifTitle: "Haus & Küche",
+                notifBody: "Zeit für Ihre Aufgabe in Haus oder Küche!"
             }
         };
 
-        let currentLang = localStorage.getItem('med_lang') || 'en';
+        let currentLang = localStorage.getItem('home_lang') || 'en';
         let timerInterval = null;
         let activeAlarmEvent = null;
         let reminderRepeatInterval = null;
@@ -313,7 +314,7 @@
         }
 
         function saveSchedule() {
-            localStorage.setItem('user_med_schedule', JSON.stringify(medSchedule));
+            localStorage.setItem('user_home_schedule', JSON.stringify(homeSchedule));
         }
 
         function getLocalizedLabel(event) {
@@ -325,7 +326,7 @@
         function applyLanguage(lang) {
             if (!i18n[lang]) lang = 'en';
             currentLang = lang;
-            localStorage.setItem('med_lang', lang);
+            localStorage.setItem('home_lang', lang);
             document.documentElement.lang = lang;
 
             document.getElementById('lang-en').classList.toggle('active', lang === 'en');
@@ -334,8 +335,8 @@
 
             document.getElementById('main-title').innerText = i18n[lang].mainTitle;
             document.getElementById('status-text').innerText = i18n[lang].statusText;
-            document.getElementById('new-med-label').placeholder = i18n[lang].inputPlaceholder;
-            document.getElementById('add-med-btn').innerText = i18n[lang].addBtn;
+            document.getElementById('new-task-label').placeholder = i18n[lang].inputPlaceholder;
+            document.getElementById('add-task-btn').innerText = i18n[lang].addBtn;
             document.getElementById('sound-label').innerText = i18n[lang].soundLabel;
             document.getElementById('opt-dig').innerText = i18n[lang].optDig;
             document.getElementById('opt-gong').innerText = i18n[lang].optGong;
@@ -353,27 +354,27 @@
             const nextTarget = getNextTargetEvent();
             const nextEvent = nextTarget ? nextTarget.event : null;
             
-            medSchedule.forEach((event, index) => {
+            homeSchedule.forEach((event, index) => {
                 const li = document.createElement('li');
                 const label = getLocalizedLabel(event);
-                li.innerHTML = `<span>${event.time}</span> <span style="flex-grow: 1; margin: 0 8px; text-align: left; word-break: break-word;">${label}</span> <button onclick="removeMed(${index})" style="background: none; border: none; color: #ff5500; cursor: pointer; font-size: 14px; flex-shrink: 0;" title="${i18n[currentLang].removeTitle}">❌</button>`;
+                li.innerHTML = `<span>${event.time}</span> <span style="flex-grow: 1; margin: 0 8px; text-align: left; word-break: break-word;">${label}</span> <button onclick="removeTask(${index})" style="background: none; border: none; color: #ff5500; cursor: pointer; font-size: 14px; flex-shrink: 0;" title="${i18n[currentLang].removeTitle}">❌</button>`;
                 
                 if (nextEvent && nextEvent.id === event.id) {
-                    li.classList.add('next-med');
+                    li.classList.add('next-task');
                 }
                 scheduleListEl.appendChild(li);
             });
         }
 
-        window.removeMed = function(index) {
-            medSchedule.splice(index, 1);
+        window.removeTask = function(index) {
+            homeSchedule.splice(index, 1);
             saveSchedule();
             renderSchedule();
         }
 
-        document.getElementById('add-med-btn').addEventListener('click', () => {
-            const timeVal = document.getElementById('new-med-time').value;
-            const labelVal = document.getElementById('new-med-label').value.trim();
+        document.getElementById('add-task-btn').addEventListener('click', () => {
+            const timeVal = document.getElementById('new-task-time').value;
+            const labelVal = document.getElementById('new-task-label').value.trim();
 
             if (!timeVal || !labelVal) {
                 alert(i18n[currentLang].validationAlert);
@@ -381,26 +382,26 @@
             }
 
             const newEvent = {
-                id: "med_" + Date.now(),
+                id: "task_" + Date.now(),
                 time: timeVal,
                 labelEn: labelVal,
                 labelRu: labelVal,
                 labelDe: labelVal
             };
 
-            medSchedule.push(newEvent);
-            medSchedule.sort((a, b) => a.time.localeCompare(b.time));
+            homeSchedule.push(newEvent);
+            homeSchedule.sort((a, b) => a.time.localeCompare(b.time));
             saveSchedule();
             renderSchedule();
 
-            document.getElementById('new-med-time').value = "";
-            document.getElementById('new-med-label').value = "";
+            document.getElementById('new-task-time').value = "";
+            document.getElementById('new-task-label').value = "";
         });
 
         function getNextTargetEvent() {
-            if (medSchedule.length === 0) return null;
+            if (homeSchedule.length === 0) return null;
             const now = new Date();
-            let list = medSchedule.map(e => {
+            let list = homeSchedule.map(e => {
                 const [h, m] = e.time.split(':');
                 const d = new Date();
                 d.setHours(parseInt(h), parseInt(m), 0, 0);
@@ -427,7 +428,7 @@
         }
 
         function updateTimer() {
-            if (activeAlarmEvent || medSchedule.length === 0) return;
+            if (activeAlarmEvent || homeSchedule.length === 0) return;
 
             const now = new Date();
             const target = getNextTargetEvent();
@@ -458,14 +459,14 @@
                 alarmAudio.src = soundSelect.value;
                 alarmAudio.play().catch(e => console.log("Waiting for user interaction to play audio"));
 
-                let speechText = `Attention! Medication time: ${eventLabel}. Scheduled for ${event.time}`;
+                let speechText = `Attention! Task time: ${eventLabel}. Scheduled for ${event.time}`;
                 let speechLang = 'en-US';
 
                 if (currentLang === 'ru') {
-                    speechText = `Внимание! Время приема: ${eventLabel}. Назначено на ${event.time}`;
+                    speechText = `Внимание! Пора выполнить: ${eventLabel}. Запланировано на ${event.time}`;
                     speechLang = 'ru-RU';
                 } else if (currentLang === 'de') {
-                    speechText = `Achtung! Zeit für Medikamente: ${eventLabel}. Geplant um ${event.time}`;
+                    speechText = `Achtung! Aufgabenzeit: ${eventLabel}. Geplant um ${event.time}`;
                     speechLang = 'de-DE';
                 }
                 
@@ -497,15 +498,23 @@
             if (Notification.permission === "granted") {
                 new Notification(i18n[currentLang].notifTitle, { 
                     body: eventLabel,
-                    tag: "med-alarm",
+                    tag: "home-alarm",
                     requireInteraction: true 
                 });
             }
         }
 
+        function getScoreValue() {
+            const saved = localStorage.getItem('home_score');
+            if (saved !== null) return parseInt(saved) || 0;
+            const legacy = parseInt(localStorage.getItem('med_streak')) || 0;
+            localStorage.setItem('home_score', legacy);
+            return legacy;
+        }
+
         function updateStreakDisplay() {
-            let currentStreak = parseInt(localStorage.getItem('med_streak')) || 0;
-            streakEl.innerText = `Bio-Score: ${currentStreak}`;
+            const currentScore = getScoreValue();
+            streakEl.innerText = `Home-Score: ${currentScore}`;
         }
 
         confirmBtn.addEventListener('click', () => {
@@ -530,9 +539,9 @@
 
             activeAlarmEvent = null;
 
-            let currentStreak = parseInt(localStorage.getItem('med_streak')) || 0;
-            currentStreak++;
-            localStorage.setItem('med_streak', currentStreak);
+            let currentScore = getScoreValue();
+            currentScore++;
+            localStorage.setItem('home_score', currentScore);
             updateStreakDisplay();
             renderSchedule();
         });
@@ -548,7 +557,7 @@
         });
 
         window.addEventListener('DOMContentLoaded', () => {
-            const video = document.getElementById('promo-player');
+            const video = document.getElementById('hearth-player');
             if (video) {
                 video.muted = false;
                 video.play().catch(() => {
