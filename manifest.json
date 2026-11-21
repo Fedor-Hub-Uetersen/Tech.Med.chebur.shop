@@ -1,7 +1,7 @@
 {
   "name": "Home.chebur.shop Med-Reminder",
   "short_name": "Haus & Küche",
-  "description": "Мониторинг здоровья и приёма лекарств",
+  "description": "Haus & Küche",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
