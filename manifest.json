@@ -1,5 +1,5 @@
 {
-  "name": "Tech.Med.chebur.shop Med-Reminder",
+  "name": "Home.chebur.shop Med-Reminder",
   "short_name": "BioWolf Med",
   "description": "Мониторинг здоровья и приёма лекарств",
   "start_url": "./",
@@ -31,14 +31,14 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Мониторинг здоровья"
+      "label": "Haus & Küche"
     },
     {
       "src": "./wolf.png",
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Мониторинг здоровья"
+      "label": "Haus & Küche"
     }
   ]
 }
